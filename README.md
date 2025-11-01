@@ -136,7 +136,7 @@ c8volt simplifies various tasks related to Camunda 8, including these special us
 
 - …and more to come:
 - bulk operations (e.g., delete multiple process instances by filter)
-- multiple Camunda 8 API versions support (currently 8.7, 8.8 to come)
+- multiple Camunda 8 API versions support (currently 8.7, 8.8, 8.9 planned)
 - or submit a proposal or contribute code on [GitHub](https://github.com/grafvonb/c8volt)
 
 ## Supported Camunda 8 APIs
@@ -192,15 +192,15 @@ auth:
     password: "demo"
 ```
 
-### Connecting to Camunda 8 APIs
+### Connecting to Camunda's 8 APIs
 
 To run c8volt, you need to configure the connection to your Camunda 8 APIs (Camunda, Operate, Tasklist) and authentication details.
-With the introduction of Camunda 8.8 and unified APIs, some of these settings may become optional or redundant in the future.
+With the introduction of Camunda v8.8 and unified APIs, some of these settings may become optional or redundant in the future.
 
 c8volt expects the following API configurations:
-* Camunda 8 API (required, formally known as Zeebe API)
-* Operate API (optional, required for some commands, if not set defaults to Camunda 8 API)
-* Tasklist API (optional, required for some commands, if not set defaults to Camunda 8 API)
+* [Camunda 8 API](https://docs.camunda.io/docs/8.7/apis-tools/camunda-api-rest/camunda-api-rest-overview/) (required, formally known as Zeebe API), since v8.8 known as [Orchestration Cluster API](https://docs.camunda.io/docs/apis-tools/orchestration-cluster-api-rest/orchestration-cluster-api-rest-overview/)
+* [Operate API](https://docs.camunda.io/docs/8.7/apis-tools/operate-api/overview/) (optional, required for some commands, if not set defaults to Camunda 8 API), since v8.8 deprecated in favor of unified Orchestration Cluster API
+* [Tasklist API](https://docs.camunda.io/docs/8.7/apis-tools/tasklist-api-rest/tasklist-api-rest-overview/) (optional, required for some commands, if not set defaults to Camunda 8 API), since v8.8 deprecated in favor of unified Orchestration Cluster API
 
 #### If you use Camunda 8 Run with API Cookie Authentication (Development only)
 
@@ -227,7 +227,7 @@ c8volt uses [Viper](https://github.com/spf13/viper) under the hood.
 Configuration values can come from:
 
 -   **Flags** (`--auth-client-id=...`)
--   **Environment variables** (`c8volt_AUTH_CLIENT_ID=...`)
+-   **Environment variables** (`C8VOLT_AUTH_CLIENT_ID=...`)
 -   **Config file** (YAML)
 -   **Defaults** (hardcoded fallbacks)
 
@@ -238,7 +238,7 @@ When multiple sources define the same setting, the **highest-priority value wins
 | Priority    | Source             | Example                          |
 |-------------|--------------------|----------------------------------|
 | 1 (highest) | Command-line flags | `--auth-client-id=cli-id`        |
-| 2           | Environment vars   | `c8volt_AUTH_CLIENT_ID=env-id` |
+| 2           | Environment vars   | `C8VOLT_AUTH_CLIENT_ID=env-id`   |
 | 3           | Config file (YAML) | `auth.client_id: file-id`        |
 | 4 (lowest)  | Defaults           | `http.timeout: "30s"` (built-in) |
 
@@ -256,17 +256,12 @@ When searching for a config file, c8volt checks these paths in order and uses th
 
 ### File format
 
-Config files must be **YAML**. Example:
+Config files must be **YAML**. Example with core settings:
 
 ``` yaml
 app:
-  backoff:
-    strategy: exponential
-    initial_delay: 500ms
-    max_delay: 8s
-    max_retries: 0
-    multiplier: 2.0
-    timeout: 2m
+  # Tenant identifier (optional, depending on your setup)
+  tenant: ""
 
 auth:
   # OAuth token endpoint
@@ -274,7 +269,7 @@ auth:
 
   # Client credentials (use env vars if possible)
   client_id: "c8volt"
-  client_secret: ""
+  client_secret: "" # do not store secrets in config files if possible, use environment variable C8VOLT_AUTH_CLIENT_SECRET instead
 
   # Scopes as key:value pairs (names -> scope strings)
   # Do not define if not in use or empty
@@ -288,11 +283,13 @@ http:
   timeout: "30s"
 
 apis:
-  # Base URLs for your endpoints
+  # Base URL for Camunda API (v8.8+: Orchestration Cluster API)
   camunda_api:
     base_url: "http://localhost:8080/v2"
+  # Base URL for Operate API (leaves empty to default to camunda_api, deprecated in v8.8+)
   operate_api:
     base_url: "http://localhost:8081/v1"
+  # Base URL for Tasklist API (leaves empty to default to camunda_api, deprecated in v8.8+)
   tasklist_api:
     base_url: "http://localhost:8082/v1"
 ```
