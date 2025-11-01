@@ -39,16 +39,13 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 		ctx := cfg.ToContext(cmd.Context())
-
+		log, err := logging.FromContext(ctx)
+		if err != nil {
+			return fmt.Errorf("retrieve logger from context: %w", err)
+		}
 		if flagQuiet {
 			v.Set("log.level", "error")
 		}
-		log := logging.New(logging.LoggerConfig{
-			Level:      v.GetString("log.level"),
-			Format:     v.GetString("log.format"),
-			WithSource: v.GetBool("log.with_source"),
-		})
-		ctx = logging.ToContext(ctx, log)
 
 		if pathcfg := v.ConfigFileUsed(); pathcfg != "" {
 			log.Debug("config loaded: " + pathcfg)
@@ -161,6 +158,10 @@ func initViper(v *viper.Viper, cmd *cobra.Command) error {
 	_ = v.BindPFlag("apis.tasklist_api.base_url", fs.Lookup("api-tasklist-base-url"))
 
 	v.SetDefault("http.timeout", "30s")
+
+	v.SetDefault("log.level", "info")
+	v.SetDefault("log.format", "text")
+	v.SetDefault("log.with_source", false)
 
 	v.SetEnvPrefix("c8volt")
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))

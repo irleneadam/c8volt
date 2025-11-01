@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-const Envc8voltTestPrefix = "c8volt_TEST_"
+const Envc8voltTestPrefix = "C8VOLT_TEST_"
 
 func RequireEnv(t testing.TB, key string) string {
 	t.Helper()

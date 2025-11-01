@@ -1,4 +1,4 @@
-<img src="./docs/logo/c8volt_orange_black_bkg_white_400x152.png" alt="c8volt logo" style="border-radius: 5px;" />
+<img src="./docs/logo/C8VOLT_orange_black_bkg_white_400x152.png" alt="c8volt logo" style="border-radius: 5px;" />
 
 # c8volt - Yet Another Camunda 8 CLI Tool?
 
@@ -166,7 +166,7 @@ auth:
   oauth2:
     token_url: "http://localhost:18080/auth/realms/camunda-platform/protocol/openid-connect"
     client_id: "c8volt"
-    client_secret: "*******" # use environment variable c8volt_AUTH_CLIENT_SECRET if possible
+    client_secret: "*******" # use environment variable C8VOLT_AUTH_CLIENT_SECRET if possible
     scopes:
       camunda_api: "profile"
       operate_api: "profile"
@@ -295,12 +295,12 @@ apis:
 ### Environment variables
 
 Each config key can also be set via environment variable.\
-The prefix is `c8volt_`, and nested keys are joined with `_`. For
+The prefix is `C8VOLT_`, and nested keys are joined with `_`. For
 example:
 
--   `c8volt_AUTH_CLIENT_ID`
--   `c8volt_AUTH_CLIENT_SECRET`
--   `c8volt_HTTP_TIMEOUT`
+-   `C8VOLT_AUTH_CLIENT_ID`
+-   `C8VOLT_AUTH_CLIENT_SECRET`
+-   `C8VOLT_HTTP_TIMEOUT`
 
 ### Security note
 

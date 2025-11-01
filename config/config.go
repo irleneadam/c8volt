@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/grafvonb/c8volt/toolx/logging"
 	"gopkg.in/yaml.v3"
 )
 
@@ -17,6 +18,9 @@ var (
 
 	ErrNoConfigInContext       = errors.New("no config in context")
 	ErrInvalidServiceInContext = errors.New("invalid config in context")
+
+	ErrInvalidLogLevel  = errors.New("invalid log.level")
+	ErrInvalidLogFormat = errors.New("invalid log.format")
 )
 
 type Config struct {
@@ -26,6 +30,7 @@ type Config struct {
 	Auth Auth `mapstructure:"auth" json:"auth" yaml:"auth"`
 	APIs APIs `mapstructure:"apis" json:"apis" yaml:"apis"`
 	HTTP HTTP `mapstructure:"http" json:"http" yaml:"http"`
+	Log  Log  `mapstructure:"log" json:"log" yaml:"log"`
 }
 
 func (c *Config) Normalize() error {
@@ -33,6 +38,7 @@ func (c *Config) Normalize() error {
 	if err := c.APIs.Normalize(); err != nil {
 		errs = append(errs, fmt.Errorf("apis:\n%w", err))
 	}
+	c.Log.Normalize()
 	return errors.Join(errs...)
 }
 
@@ -47,7 +53,30 @@ func (c *Config) Validate() error {
 	if err := c.HTTP.Validate(); err != nil {
 		errs = append(errs, fmt.Errorf("http:\n%w", err))
 	}
+	if err := c.Log.Validate(); err != nil {
+		errs = append(errs, fmt.Errorf("log:\n%w", err))
+	}
 	return errors.Join(errs...)
+}
+
+type ctxConfigKey struct{}
+
+func (c *Config) ToContext(ctx context.Context) context.Context {
+	ctx = context.WithValue(ctx, ctxConfigKey{}, c)
+	log := c.Log.NewLogger()
+	return logging.ToContext(ctx, log)
+}
+
+func FromContext(ctx context.Context) (*Config, error) {
+	v := ctx.Value(ctxConfigKey{})
+	if v == nil {
+		return nil, ErrNoConfigInContext
+	}
+	c, ok := v.(*Config)
+	if !ok || c == nil {
+		return nil, ErrInvalidServiceInContext
+	}
+	return c, nil
 }
 
 func (c *Config) ToSanitizedYAML() (string, error) {
@@ -69,8 +98,8 @@ func (c *Config) ToTemplateYAML() (string, error) {
 }
 
 type yamlExportOptions struct {
-	template     bool     // if true: blank all leaf values
-	sanitizeKeys []string // mask these keys with "***"
+	template     bool
+	sanitizeKeys []string
 }
 
 func (c *Config) toYaml(opts yamlExportOptions) (string, error) {
@@ -136,22 +165,4 @@ func isSensitive(k string, sensitive []string) bool {
 		}
 	}
 	return false
-}
-
-type ctxConfigKey struct{}
-
-func (c *Config) ToContext(ctx context.Context) context.Context {
-	return context.WithValue(ctx, ctxConfigKey{}, c)
-}
-
-func FromContext(ctx context.Context) (*Config, error) {
-	v := ctx.Value(ctxConfigKey{})
-	if v == nil {
-		return nil, ErrNoConfigInContext
-	}
-	c, ok := v.(*Config)
-	if !ok || c == nil {
-		return nil, ErrInvalidServiceInContext
-	}
-	return c, nil
 }

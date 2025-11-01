@@ -65,7 +65,7 @@ func New(cfg *config.Config, apiHTTP *http.Client, log *slog.Logger, opts ...Opt
 	if err != nil {
 		return nil, fmt.Errorf("parse token url: %w", err)
 	}
-	tokenHTTP := &http.Client{Timeout: apiHTTP.Timeout, Transport: &httpc.LogTransport{Log: log, WithBody: true}}
+	tokenHTTP := &http.Client{Timeout: apiHTTP.Timeout, Transport: &httpc.LogTransport{Log: log, WithBody: cfg.Log.WithRequestBody}}
 
 	cfg.APIs.Operate.BaseURL = common.DefaultVal(cfg.APIs.Operate.BaseURL, cfg.APIs.Camunda.BaseURL)
 	cfg.APIs.Tasklist.BaseURL = common.DefaultVal(cfg.APIs.Tasklist.BaseURL, cfg.APIs.Camunda.BaseURL)

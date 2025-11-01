@@ -7,6 +7,7 @@ var utilityCommands = map[string]struct{}{
 	"version":    {},
 	"completion": {},
 	"config":     {},
+	"show":       {},
 }
 
 func isUtilityCommand(cmd *cobra.Command) bool {

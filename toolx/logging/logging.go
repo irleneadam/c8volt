@@ -13,9 +13,10 @@ var (
 )
 
 type LoggerConfig struct {
-	Level      string
-	Format     string
-	WithSource bool
+	Level           string
+	Format          string
+	WithSource      bool
+	WithRequestBody bool
 }
 
 type ctxKey struct{}
