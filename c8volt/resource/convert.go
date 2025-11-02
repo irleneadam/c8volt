@@ -4,15 +4,26 @@ import (
 	d "github.com/grafvonb/c8volt/internal/domain"
 )
 
-func fromProcessDefinitionDeployment(d d.Deployment) ProcessDefinitionDeployment {
-	return ProcessDefinitionDeployment{
-		Key: d.Key,
-		//DefinitionId:      d.Units[0].ProcessDefinition.ProcessDefinitionId,
-		//DefinitionVersion: d.Units[0].ProcessDefinition.ProcessDefinitionVersion,
-		//DefinitionKey:     d.Units[0].ProcessDefinition.ProcessDefinitionKey,
-		//ResourceName:      d.Units[0].ProcessDefinition.ResourceName,
-		TenantId: d.TenantId,
+func fromProcessDefinitionDeployment(dep d.Deployment) []ProcessDefinitionDeployment {
+	if len(dep.Units) == 0 {
+		return []ProcessDefinitionDeployment{{
+			Key:      dep.Key,
+			TenantId: dep.TenantId,
+		}}
 	}
+	out := make([]ProcessDefinitionDeployment, 0, len(dep.Units))
+	for _, u := range dep.Units {
+		pd := u.ProcessDefinition
+		out = append(out, ProcessDefinitionDeployment{
+			Key:               dep.Key,
+			DefinitionId:      pd.ProcessDefinitionId,
+			DefinitionVersion: pd.ProcessDefinitionVersion,
+			DefinitionKey:     pd.ProcessDefinitionKey,
+			ResourceName:      pd.ResourceName,
+			TenantId:          dep.TenantId,
+		})
+	}
+	return out
 }
 
 func toDeploymentUnitDatas(units []DeploymentUnitData) []d.DeploymentUnitData {

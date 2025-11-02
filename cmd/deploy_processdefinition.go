@@ -30,11 +30,15 @@ var deployProcessDefinitionCmd = &cobra.Command{
 			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("collecting process definition(s): %w", err))
 		}
 		log.Debug(fmt.Sprintf("deploying process definition(s) to tenant %q", cfg.App.ViewTenant()))
-		_, err = cli.DeployProcessDefinition(cmd.Context(), cfg.App.Tenant, res, collectOptions()...)
+		pdds, err := cli.DeployProcessDefinition(cmd.Context(), cfg.App.Tenant, res, collectOptions()...)
 		if err != nil {
 			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("deploying process definition(s): %w", err))
 		}
-		log.Info(fmt.Sprintf("process definition(s) to tenant %q deployed successfully", cfg.App.ViewTenant()))
+		err = listProcessDefinitionDeploymentsView(cmd, pdds)
+		if err != nil {
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("rendering process definition deployment view: %w", err))
+		}
+		log.Debug(fmt.Sprintf("%d process definition(s) to tenant %q deployed successfully", len(pdds), cfg.App.ViewTenant()))
 	},
 }
 

@@ -48,11 +48,15 @@ var embedDeployCmd = &cobra.Command{
 		}
 
 		// TODO (Adam): currently only deployment of process definitions is supported, extend to other resource types as needed
-		_, err = cli.DeployProcessDefinition(cmd.Context(), cfg.App.Tenant, units, collectOptions()...)
+		pdds, err := cli.DeployProcessDefinition(cmd.Context(), cfg.App.Tenant, units, collectOptions()...)
 		if err != nil {
 			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("deploying embedded resource(s): %w", err))
 		}
-		log.Info(fmt.Sprintf("deployed %d embedded resources(s) to tenant %q", len(units), cfg.App.ViewTenant()))
+		err = listProcessDefinitionDeploymentsView(cmd, pdds)
+		if err != nil {
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("rendering process definition deployment view: %w", err))
+		}
+		log.Debug(fmt.Sprintf("%d embedded resource(s) to tenant %q deployed successfully", len(pdds), cfg.App.ViewTenant()))
 	},
 }
 
