@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/grafvonb/c8volt/c8volt/ferrors"
+	"github.com/grafvonb/c8volt/config"
 	"github.com/grafvonb/c8volt/embedded"
 	"github.com/grafvonb/c8volt/toolx"
 	"github.com/grafvonb/c8volt/toolx/logging"
@@ -18,10 +19,14 @@ var embedListCmd = &cobra.Command{
 	Aliases: []string{"ls"},
 	Run: func(cmd *cobra.Command, args []string) {
 		log, _ := logging.FromContext(cmd.Context())
+		cfg, err := config.FromContext(cmd.Context())
+		if err != nil {
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, err)
+		}
 
 		files, err := embedded.List()
 		if err != nil {
-			ferrors.HandleAndExit(log, err)
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, err)
 		}
 
 		for _, f := range files {

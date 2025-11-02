@@ -17,13 +17,13 @@ var deleteProcessInstanceCmd = &cobra.Command{
 	Short:   "Delete a process instance by its key",
 	Aliases: []string{"pi"},
 	Run: func(cmd *cobra.Command, args []string) {
-		cli, log, _, err := NewCli(cmd)
+		cli, log, cfg, err := NewCli(cmd)
 		if err != nil {
-			ferrors.HandleAndExit(log, err)
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, err)
 		}
 		_, err = cli.DeleteProcessInstance(cmd.Context(), flagDeletePIKey, collectOptions()...)
 		if err != nil {
-			ferrors.HandleAndExit(log, fmt.Errorf("deleting process instance with key %s: %w", flagDeletePIKey, err))
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("deleting process instance with key %s: %w", flagDeletePIKey, err))
 		}
 
 	},

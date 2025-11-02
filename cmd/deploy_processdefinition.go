@@ -20,19 +20,19 @@ var deployProcessDefinitionCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		cli, log, cfg, err := NewCli(cmd)
 		if err != nil {
-			ferrors.HandleAndExit(log, err)
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, err)
 		}
 		if err := validateFiles(flagDeployPDFiles); err != nil {
-			ferrors.HandleAndExit(log, fmt.Errorf("validating files: %w", err))
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("validating files: %w", err))
 		}
 		res, err := loadResources(flagDeployPDFiles, os.Stdin)
 		if err != nil {
-			ferrors.HandleAndExit(log, fmt.Errorf("collecting resources: %w", err))
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("collecting resources: %w", err))
 		}
 		log.Debug(fmt.Sprintf("deploying process definition(s) to tenant %q", cfg.App.ViewTenant()))
 		_, err = cli.DeployProcessDefinition(cmd.Context(), cfg.App.Tenant, res, collectOptions()...)
 		if err != nil {
-			ferrors.HandleAndExit(log, fmt.Errorf("deploying process definition: %w", err))
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("deploying process definition: %w", err))
 		}
 		log.Info(fmt.Sprintf("process definition(s) to tenant %q deployed successfully", cfg.App.ViewTenant()))
 	},

@@ -20,9 +20,9 @@ var expectProcessInstanceCmd = &cobra.Command{
 	Short:   "Expect a process instance to reach a certain state",
 	Aliases: []string{"pi"},
 	Run: func(cmd *cobra.Command, args []string) {
-		cli, log, _, err := NewCli(cmd)
+		cli, log, cfg, err := NewCli(cmd)
 		if err != nil {
-			ferrors.HandleAndExit(log, err)
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, err)
 		}
 		states, err := process.ParseStates(flagExpectPIStates)
 		if err != nil {
@@ -32,7 +32,7 @@ var expectProcessInstanceCmd = &cobra.Command{
 		log.Info(fmt.Sprintf("waiting for process instance %s to reach one of the states [%s]", flagExpectPIKey, states))
 		got, err := cli.WaitForProcessInstanceState(cmd.Context(), flagExpectPIKey, states, collectOptions()...)
 		if err != nil {
-			ferrors.HandleAndExit(log, fmt.Errorf("cancelling process instance: %w", err))
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("cancelling process instance: %w", err))
 		}
 		log.Info(fmt.Sprintf("process instance %s reached desired state %s", flagExpectPIKey, got))
 	},

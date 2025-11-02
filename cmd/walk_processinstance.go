@@ -23,9 +23,9 @@ var walkProcessInstanceCmd = &cobra.Command{
 	Short:   "Traverse (walk) the parent/child graph of process instances",
 	Aliases: []string{"pi", "pis"},
 	Run: func(cmd *cobra.Command, args []string) {
-		cli, log, _, err := NewCli(cmd)
+		cli, log, cfg, err := NewCli(cmd)
 		if err != nil {
-			ferrors.HandleAndExit(log, err)
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, err)
 		}
 
 		type walker struct {
@@ -59,15 +59,15 @@ var walkProcessInstanceCmd = &cobra.Command{
 
 		w, ok := walkers[flagWalkMode]
 		if !ok {
-			ferrors.HandleAndExit(log, fmt.Errorf("invalid --mode %q (must be %s, %s, or %s)", flagWalkMode, modeParent, modeChildren, modeFamily))
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("invalid --mode %q (must be %s, %s, or %s)", flagWalkMode, modeParent, modeChildren, modeFamily))
 		}
 
 		path, chain, err := w.fetch()
 		if err != nil {
-			ferrors.HandleAndExit(log, err)
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, err)
 		}
 		if err := w.view(cmd, path, chain); err != nil {
-			ferrors.HandleAndExit(log, err)
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, err)
 		}
 	},
 }

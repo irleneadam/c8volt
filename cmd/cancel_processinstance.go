@@ -17,14 +17,14 @@ var cancelProcessInstanceCmd = &cobra.Command{
 	Short:   "Cancel a process instance by its key",
 	Aliases: []string{"pi"},
 	Run: func(cmd *cobra.Command, args []string) {
-		cli, log, _, err := NewCli(cmd)
+		cli, log, cfg, err := NewCli(cmd)
 		if err != nil {
-			ferrors.HandleAndExit(log, err)
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("initializing client: %w", err))
 		}
 
 		_, err = cli.CancelProcessInstance(cmd.Context(), flagCancelPIKey, collectOptions()...)
 		if err != nil {
-			ferrors.HandleAndExit(log, fmt.Errorf("cancelling process instance: %w", err))
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("cancelling process instance: %w", err))
 		}
 	},
 }

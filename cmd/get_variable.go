@@ -13,15 +13,15 @@ var getVariableCmd = &cobra.Command{
 	Short:   "Get a variable by its name from a process instance",
 	Aliases: []string{"var"},
 	Run: func(cmd *cobra.Command, args []string) {
-		cli, log, _, err := NewCli(cmd)
+		cli, log, cfg, err := NewCli(cmd)
 		if err != nil {
-			ferrors.HandleAndExit(log, err)
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, err)
 		}
 
 		log.Debug("getting variable")
 		topology, err := cli.GetClusterTopology(cmd.Context())
 		if err != nil {
-			ferrors.HandleAndExit(log, fmt.Errorf("error getting variable: %w", err))
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("error getting variable: %w", err))
 		}
 		cmd.Println(toolx.ToJSONString(topology))
 	},

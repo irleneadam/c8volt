@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/grafvonb/c8volt/c8volt/ferrors"
 	"github.com/grafvonb/c8volt/config"
 	"github.com/grafvonb/c8volt/internal/services/auth"
 	"github.com/grafvonb/c8volt/internal/services/auth/authenticator"
@@ -20,6 +21,7 @@ var (
 	flagViewAsJson   bool
 	flagViewKeysOnly bool
 	flagQuiet        bool
+	flagNoErrCodes   bool
 )
 
 var rootCmd = &cobra.Command{
@@ -65,14 +67,14 @@ var rootCmd = &cobra.Command{
 
 		httpSvc, err := httpc.New(cfg, log, httpc.WithCookieJar())
 		if err != nil {
-			return fmt.Errorf("http service: %w", err)
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("create http service: %w", err))
 		}
 		ator, err := auth.BuildAuthenticator(cfg, httpSvc.Client(), log)
 		if err != nil {
-			return fmt.Errorf("auth build: %w", err)
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("create authenticator: %w", err))
 		}
 		if err := ator.Init(ctx); err != nil {
-			return fmt.Errorf("auth init: %w", err)
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("initialize authenticator: %w", err))
 		}
 		httpSvc.InstallAuthEditor(ator.Editor())
 		ctx = httpSvc.ToContext(ctx)
@@ -112,6 +114,7 @@ func init() {
 	pf.Bool("log-with-source", false, "include source file and line number in logs")
 
 	pf.String("tenant", "", "default tenant ID")
+	pf.BoolVar(&flagNoErrCodes, "no-err-codes", false, "suppress error codes in error outputs")
 
 	pf.String("auth-mode", "oauth2", "authentication mode (oauth2, cookie)")
 	pf.String("auth-oauth2-client-id", "", "auth client ID")
@@ -140,6 +143,8 @@ func initViper(v *viper.Viper, cmd *cobra.Command) error {
 	_ = v.BindPFlag("log.with_source", fs.Lookup("log-with-source"))
 
 	_ = v.BindPFlag("app.tenant", fs.Lookup("tenant"))
+	_ = v.BindPFlag("app.camunda_version", fs.Lookup("camunda-version"))
+	_ = v.BindPFlag("app.no_err_codes", fs.Lookup("no-err-codes"))
 
 	_ = v.BindPFlag("auth.mode", fs.Lookup("auth-mode"))
 	_ = v.BindPFlag("auth.oauth2.client_id", fs.Lookup("auth-oauth2-client-id"))

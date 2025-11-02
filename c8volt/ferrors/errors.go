@@ -47,11 +47,14 @@ func HandleAndExitOK(log *slog.Logger, message string) {
 	os.Exit(exitcode.OK)
 }
 
-func HandleAndExit(log *slog.Logger, err error) {
+func HandleAndExit(log *slog.Logger, noErrCodes bool, err error) {
 	if err == nil {
 		os.Exit(exitcode.OK)
 	}
 	log.Error(err.Error())
+	if noErrCodes {
+		os.Exit(exitcode.OK)
+	}
 	switch {
 	case errors.Is(err, ErrBadRequest):
 		os.Exit(exitcode.InvalidArgs)

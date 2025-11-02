@@ -33,13 +33,13 @@ var getProcessInstanceCmd = &cobra.Command{
 	Short:   "Get process instances",
 	Aliases: []string{"process-instances", "pi", "pis"},
 	Run: func(cmd *cobra.Command, args []string) {
-		cli, log, _, err := NewCli(cmd)
+		cli, log, cfg, err := NewCli(cmd)
 		if err != nil {
-			ferrors.HandleAndExit(log, err)
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, err)
 		}
 
 		if err != nil {
-			ferrors.HandleAndExit(log, fmt.Errorf("error creating c8volt client: %w", err))
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("error creating c8volt client: %w", err))
 		}
 
 		log.Debug(fmt.Sprintf("fetching process instances, render mode: %s", pickMode()))
@@ -49,21 +49,21 @@ var getProcessInstanceCmd = &cobra.Command{
 			log.Debug(fmt.Sprintf("searching by key: %s", searchFilterOpts.Key))
 			pi, err := cli.GetProcessInstanceByKey(cmd.Context(), searchFilterOpts.Key)
 			if err != nil {
-				ferrors.HandleAndExit(log, fmt.Errorf("error fetching process instance by key %s: %w", searchFilterOpts.Key, err))
+				ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("error fetching process instance by key %s: %w", searchFilterOpts.Key, err))
 			}
 			err = processInstanceView(cmd, pi)
 			if err != nil {
-				ferrors.HandleAndExit(log, fmt.Errorf("error rendering key-only view: %w", err))
+				ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("error rendering key-only view: %w", err))
 			}
 			log.Debug(fmt.Sprintf("searched by key, found process instance with key: %s", pi.Key))
 		} else {
 			log.Debug(fmt.Sprintf("searching by filter: %v", searchFilterOpts))
 			pisr, err := cli.SearchProcessInstances(cmd.Context(), searchFilterOpts, maxPISearchSize)
 			if err != nil {
-				ferrors.HandleAndExit(log, fmt.Errorf("error fetching process instances: %w", err))
+				ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("error fetching process instances: %w", err))
 			}
 			if flagGetPIChildrenOnly && flagGetPIParentsOnly {
-				ferrors.HandleAndExit(log, fmt.Errorf("%w: using both --children-only and --parents-only filters returns always no results", ferrors.ErrBadRequest))
+				ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("%w: using both --children-only and --parents-only filters returns always no results", ferrors.ErrBadRequest))
 			}
 			if flagGetPIChildrenOnly {
 				pisr = pisr.FilterChildrenOnly()
@@ -74,7 +74,7 @@ var getProcessInstanceCmd = &cobra.Command{
 			if flagGetPIOrphanParentsOnly {
 				pisr.Items, err = cli.FilterProcessInstanceWithOrphanParent(cmd.Context(), pisr.Items)
 				if err != nil {
-					ferrors.HandleAndExit(log, fmt.Errorf("error filtering orphan parents: %w", err))
+					ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("error filtering orphan parents: %w", err))
 				}
 			}
 			if flagGetPIIncidentsOnly {
@@ -85,7 +85,7 @@ var getProcessInstanceCmd = &cobra.Command{
 			}
 			err = listProcessInstancesView(cmd, pisr)
 			if err != nil {
-				ferrors.HandleAndExit(log, fmt.Errorf("error rendering items view: %w", err))
+				ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("error rendering items view: %w", err))
 			}
 			log.Debug(fmt.Sprintf("fetched process instances: %d", pisr.Total))
 		}
