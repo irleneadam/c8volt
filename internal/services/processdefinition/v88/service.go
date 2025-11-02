@@ -15,7 +15,7 @@ import (
 )
 
 type Service struct {
-	c   *operatev88.ClientWithResponses
+	c   GenProcessDefinitionClientOperate
 	cfg *config.Config
 	log *slog.Logger
 }

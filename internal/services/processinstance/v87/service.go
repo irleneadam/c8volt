@@ -21,8 +21,8 @@ import (
 const wrongStateMessage400 = "Process instances needs to be in one of the states [COMPLETED, CANCELED]"
 
 type Service struct {
-	cc  GenClusterClientCamunda
-	oc  GenClusterClientOperate
+	cc  GenProcessInstanceClientCamunda
+	co  GenProcessInstanceClientOperate
 	cfg *config.Config
 	log *slog.Logger
 }
@@ -44,7 +44,7 @@ func New(cfg *config.Config, httpClient *http.Client, log *slog.Logger, opts ...
 	if err != nil {
 		return nil, err
 	}
-	s := &Service{oc: co, cc: cc, cfg: cfg, log: log}
+	s := &Service{co: co, cc: cc, cfg: cfg, log: log}
 	for _, opt := range opts {
 		opt(s)
 	}
@@ -58,7 +58,7 @@ func (s *Service) GetProcessInstanceByKey(ctx context.Context, key string, opts 
 		return d.ProcessInstance{}, fmt.Errorf("converting process instance key %q to int64: %w", key, err)
 	}
 	s.log.Debug(fmt.Sprintf("fetching process instance with key %d", oldKey))
-	resp, err := s.oc.GetProcessInstanceByKeyWithResponse(ctx, oldKey)
+	resp, err := s.co.GetProcessInstanceByKeyWithResponse(ctx, oldKey)
 	if err != nil {
 		return d.ProcessInstance{}, err
 	}
@@ -77,7 +77,7 @@ func (s *Service) GetDirectChildrenOfProcessInstance(ctx context.Context, key st
 	filter := d.ProcessInstanceSearchFilterOpts{
 		ParentKey: key,
 	}
-	resp, err := s.SearchForProcessInstances(ctx, filter, 1000)
+	resp, err := s.SearchForProcessInstances(ctx, filter, 1000, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("searching for children of process instance with key %s: %w", key, err)
 	}
@@ -94,7 +94,7 @@ func (s *Service) FilterProcessInstanceWithOrphanParent(ctx context.Context, ite
 		if it.ParentKey == "" {
 			continue
 		}
-		_, err := s.GetProcessInstanceByKey(ctx, it.ParentKey)
+		_, err := s.GetProcessInstanceByKey(ctx, it.ParentKey, opts...)
 		if err != nil && strings.Contains(err.Error(), "404") {
 			result = append(result, it)
 		} else if err != nil {
@@ -124,7 +124,7 @@ func (s *Service) SearchForProcessInstances(ctx context.Context, filter d.Proces
 		Filter: &f,
 		Size:   &size,
 	}
-	resp, err := s.oc.SearchProcessInstancesWithResponse(ctx, body)
+	resp, err := s.co.SearchProcessInstancesWithResponse(ctx, body)
 	if err != nil {
 		return nil, err
 	}
@@ -141,11 +141,13 @@ func (s *Service) SearchForProcessInstances(ctx context.Context, filter d.Proces
 func (s *Service) CancelProcessInstance(ctx context.Context, key string, opts ...services.CallOption) (d.CancelResponse, error) {
 	cCfg := services.ApplyCallOptions(opts)
 	if !cCfg.NoStateCheck {
-		s.log.Debug(fmt.Sprintf("checking if process instance with key %s is in allowable state to cancel", key))
-		st, err := s.GetProcessInstanceStateByKey(ctx, key)
+		s.log.Debug(fmt.Sprintf("getting state and parent of process instance with key %s before cancellation", key))
+		st, pi, err := s.GetProcessInstanceStateByKey(ctx, key, opts...)
+
 		if err != nil {
 			return d.CancelResponse{}, err
 		}
+		s.log.Debug(fmt.Sprintf("checking if process instance with key %s is in allowable state to cancel", key))
 		if st.IsTerminal() {
 			s.log.Info(fmt.Sprintf("process instance with key %s is already in state %s, no need to cancel", key, st))
 			return d.CancelResponse{
@@ -153,8 +155,24 @@ func (s *Service) CancelProcessInstance(ctx context.Context, key string, opts ..
 				Status:     fmt.Sprintf("process instance with key %s is already in state %s, no need to cancel", key, st),
 			}, nil
 		}
+		s.log.Debug(fmt.Sprintf("checking if process instance with key %s is a child process", key))
+		if pi.ParentKey != "" {
+			s.log.Debug("child process, looking up root process instance in ancestry")
+			rootPIKey, _, _, erra := walker.Ancestry(ctx, s, key, opts...)
+			if erra != nil {
+				return d.CancelResponse{}, fmt.Errorf("fetching ancestry for process instance with key %s: %w", key, erra)
+			}
+			s.log.Info(fmt.Sprintf("cannot cancel, process instance with key %s is a child process of a root parent with key %s", key, rootPIKey))
+			if cCfg.Force {
+				s.log.Info(fmt.Sprintf("force flag is set, cancelling root process instance with key %s and all its child processes", rootPIKey))
+				return s.CancelProcessInstance(ctx, rootPIKey, opts...)
+			} else {
+				s.log.Info(fmt.Sprintf("you can use the --force flag to cancel the root process instance with key %s and all its child processes", rootPIKey))
+				return d.CancelResponse{StatusCode: http.StatusConflict}, nil
+			}
+		}
 	} else {
-		s.log.Debug(fmt.Sprintf("skipping state check for process instance with key %s before cancellation", key))
+		s.log.Debug(fmt.Sprintf("skipping state check and parent for process instance with key %s before cancellation", key))
 	}
 	s.log.Debug(fmt.Sprintf("cancelling process instance with key %s", key))
 	resp, err := s.cc.PostProcessInstancesProcessInstanceKeyCancellationWithResponse(ctx, key,
@@ -165,9 +183,9 @@ func (s *Service) CancelProcessInstance(ctx context.Context, key string, opts ..
 	if err = httpc.HttpStatusErr(resp.HTTPResponse, resp.Body); err != nil {
 		return d.CancelResponse{}, err
 	}
-	if cCfg.Wait {
+	if !cCfg.NoWait {
 		s.log.Info(fmt.Sprintf("waiting for process instance with key %s to be cancelled by workflow engine...", key))
-		states := []d.State{d.StateCanceled}
+		states := []d.State{d.StateCanceled, d.StateTerminated}
 		if _, err = waiter.WaitForProcessInstanceState(ctx, s, s.cfg, s.log, key, states, opts...); err != nil {
 			return d.CancelResponse{}, fmt.Errorf("waiting for canceled state failed for %s: %w", key, err)
 		}
@@ -179,27 +197,27 @@ func (s *Service) CancelProcessInstance(ctx context.Context, key string, opts ..
 	}, nil
 }
 
-func (s *Service) GetProcessInstanceStateByKey(ctx context.Context, key string, opts ...services.CallOption) (d.State, error) {
+func (s *Service) GetProcessInstanceStateByKey(ctx context.Context, key string, opts ...services.CallOption) (d.State, d.ProcessInstance, error) {
 	_ = services.ApplyCallOptions(opts)
 	s.log.Debug(fmt.Sprintf("checking state of process instance with key %s", key))
 	oldKey, err := toolx.StringToInt64(key)
 	if err != nil {
-		return "", fmt.Errorf("converting process instance key %q to int64: %w", key, err)
+		return "", d.ProcessInstance{}, fmt.Errorf("converting process instance key %q to int64: %w", key, err)
 	}
-	pi, err := s.oc.GetProcessInstanceByKeyWithResponse(ctx, oldKey)
+	pi, err := s.co.GetProcessInstanceByKeyWithResponse(ctx, oldKey)
 	if err != nil {
-		return "", fmt.Errorf("fetching process instance with key %s: %w", key, err)
+		return "", d.ProcessInstance{}, fmt.Errorf("fetching process instance with key %s: %w", key, err)
 	}
 	if err = httpc.HttpStatusErr(pi.HTTPResponse, pi.Body); err != nil {
-		return "", fmt.Errorf("fetching process instance with key %s: %w", key, err)
+		return "", d.ProcessInstance{}, fmt.Errorf("fetching process instance with key %s: %w", key, err)
 	}
 	if pi.JSON200 == nil {
-		return "", fmt.Errorf("%w: 200 OK but empty payload; body=%s",
+		return "", d.ProcessInstance{}, fmt.Errorf("%w: 200 OK but empty payload; body=%s",
 			d.ErrMalformedResponse, string(pi.Body))
 	}
 	st := d.State(*pi.JSON200.State)
 	s.log.Debug(fmt.Sprintf("process instance with key %s is in state %s", key, st))
-	return st, nil
+	return st, fromProcessInstanceResponse(*pi.JSON200), nil
 }
 
 func (s *Service) DeleteProcessInstance(ctx context.Context, key string, opts ...services.CallOption) (d.ChangeStatus, error) {
@@ -209,13 +227,13 @@ func (s *Service) DeleteProcessInstance(ctx context.Context, key string, opts ..
 	if err != nil {
 		return d.ChangeStatus{}, fmt.Errorf("parsing process instance key %q to int64: %w", key, err)
 	}
-	resp, err := s.oc.DeleteProcessInstanceAndAllDependantDataByKeyWithResponse(ctx, oldKey)
+	resp, err := s.co.DeleteProcessInstanceAndAllDependantDataByKeyWithResponse(ctx, oldKey)
 	if resp.StatusCode() == http.StatusBadRequest &&
 		resp.ApplicationproblemJSON400 != nil &&
 		*resp.ApplicationproblemJSON400.Message == wrongStateMessage400 {
-		if cCfg.Cancel {
+		if cCfg.Force {
 			s.log.Info(fmt.Sprintf("process instance with key %s not in one of terminated states; cancelling it first", key))
-			_, err = s.CancelProcessInstance(ctx, key)
+			_, err = s.CancelProcessInstance(ctx, key, opts...)
 			if err != nil {
 				return d.ChangeStatus{}, fmt.Errorf("error cancelling process instance with key %s: %w", key, err)
 			}
@@ -225,7 +243,7 @@ func (s *Service) DeleteProcessInstance(ctx context.Context, key string, opts ..
 				return d.ChangeStatus{}, fmt.Errorf("waiting for canceled state failed for %s: %w", key, err)
 			}
 			s.log.Info(fmt.Sprintf("retrying deletion of process instance with key %d", oldKey))
-			resp, err = s.oc.DeleteProcessInstanceAndAllDependantDataByKeyWithResponse(ctx, oldKey)
+			resp, err = s.co.DeleteProcessInstanceAndAllDependantDataByKeyWithResponse(ctx, oldKey)
 		}
 	}
 	if err != nil {

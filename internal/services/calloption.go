@@ -1,15 +1,15 @@
 package services
 
 func WithNoStateCheck() CallOption { return func(c *CallCfg) { c.NoStateCheck = true } }
-func WithCancel() CallOption       { return func(c *CallCfg) { c.Cancel = true } }
-func WithWait() CallOption         { return func(c *CallCfg) { c.Wait = true } }
+func WithForce() CallOption        { return func(c *CallCfg) { c.Force = true } }
+func WithNoWait() CallOption       { return func(c *CallCfg) { c.NoWait = true } }
 
 type CallOption func(*CallCfg)
 
 type CallCfg struct {
 	NoStateCheck bool
-	Cancel       bool
-	Wait         bool
+	Force        bool
+	NoWait       bool
 }
 
 func ApplyCallOptions(opts []CallOption) *CallCfg {

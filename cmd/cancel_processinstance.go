@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	flagCancelPIKey          string
-	flagCancelPINoStateCheck bool
+	flagCancelPIKey       string
+	flagCancelPIWithForce bool
 )
 
 var cancelProcessInstanceCmd = &cobra.Command{
@@ -34,5 +34,5 @@ func init() {
 
 	cancelProcessInstanceCmd.Flags().StringVarP(&flagCancelPIKey, "key", "k", "", "process instance key to cancel")
 	_ = cancelProcessInstanceCmd.MarkFlagRequired("key")
-	cancelProcessInstanceCmd.Flags().BoolVar(&flagCancelPINoStateCheck, "no-state-check", false, "skip checking the current state of the process instance before cancelling it")
+	cancelProcessInstanceCmd.Flags().BoolVar(&flagCancelPIWithForce, "force", false, "force cancellation of the root process instance if a process instance is a child, including all its child instances")
 }

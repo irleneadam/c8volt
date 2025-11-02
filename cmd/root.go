@@ -157,7 +157,6 @@ func initViper(v *viper.Viper, cmd *cobra.Command) error {
 
 	_ = v.BindPFlag("http.timeout", fs.Lookup("http-timeout"))
 
-	_ = v.BindPFlag("apis.version", fs.Lookup("camunda-version"))
 	_ = v.BindPFlag("apis.camunda_api.base_url", fs.Lookup("api-camunda-base-url"))
 	_ = v.BindPFlag("apis.operate_api.base_url", fs.Lookup("api-operate-base-url"))
 	_ = v.BindPFlag("apis.tasklist_api.base_url", fs.Lookup("api-tasklist-base-url"))
@@ -196,7 +195,7 @@ func initViper(v *viper.Viper, cmd *cobra.Command) error {
 
 func retrieveAndNormalizeConfig(v *viper.Viper) (*config.Config, error) {
 	var cfg config.Config
-	if err := v.Unmarshal(&cfg); err != nil {
+	if err := v.UnmarshalExact(&cfg); err != nil {
 		return nil, fmt.Errorf("unmarshal config: %w", err)
 	}
 	if err := cfg.Normalize(); err != nil {

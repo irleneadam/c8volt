@@ -4,14 +4,14 @@ import "github.com/grafvonb/c8volt/c8volt/options"
 
 func collectOptions() []options.FacadeOption {
 	var opts []options.FacadeOption
-	if flagCancelWait {
-		opts = append(opts, options.WithWait())
+	if flagCancelNoWait {
+		opts = append(opts, options.WithNoWait())
 	}
-	if flagCancelPINoStateCheck {
+	if flagCancelNoStateCheck {
 		opts = append(opts, options.WithNoStateCheck())
 	}
-	if flagDeletePIWithCancel {
-		opts = append(opts, options.WithCancel())
+	if flagDeletePIWithForce || flagCancelPIWithForce {
+		opts = append(opts, options.WithForce())
 	}
 	return opts
 }

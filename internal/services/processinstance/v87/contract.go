@@ -7,11 +7,11 @@ import (
 	operatev87 "github.com/grafvonb/c8volt/internal/clients/camunda/v87/operate"
 )
 
-type GenClusterClientCamunda interface {
+type GenProcessInstanceClientCamunda interface {
 	PostProcessInstancesProcessInstanceKeyCancellationWithResponse(ctx context.Context, processInstanceKey string, body camundav87.PostProcessInstancesProcessInstanceKeyCancellationJSONRequestBody, reqEditors ...camundav87.RequestEditorFn) (*camundav87.PostProcessInstancesProcessInstanceKeyCancellationResponse, error)
 }
 
-type GenClusterClientOperate interface {
+type GenProcessInstanceClientOperate interface {
 	GetProcessDefinitionByKeyWithResponse(ctx context.Context, key int64, reqEditors ...operatev87.RequestEditorFn) (*operatev87.GetProcessDefinitionByKeyResponse, error)
 	SearchProcessDefinitionsWithResponse(ctx context.Context, body operatev87.SearchProcessDefinitionsJSONRequestBody, reqEditors ...operatev87.RequestEditorFn) (*operatev87.SearchProcessDefinitionsResponse, error)
 	GetProcessInstanceByKeyWithResponse(ctx context.Context, key int64, reqEditors ...operatev87.RequestEditorFn) (*operatev87.GetProcessInstanceByKeyResponse, error)
@@ -19,5 +19,5 @@ type GenClusterClientOperate interface {
 	DeleteProcessInstanceAndAllDependantDataByKeyWithResponse(ctx context.Context, key int64, reqEditors ...operatev87.RequestEditorFn) (*operatev87.DeleteProcessInstanceAndAllDependantDataByKeyResponse, error)
 }
 
-var _ GenClusterClientCamunda = (*camundav87.ClientWithResponses)(nil)
-var _ GenClusterClientOperate = (*operatev87.ClientWithResponses)(nil)
+var _ GenProcessInstanceClientCamunda = (*camundav87.ClientWithResponses)(nil)
+var _ GenProcessInstanceClientOperate = (*operatev87.ClientWithResponses)(nil)

@@ -14,7 +14,7 @@ import (
 
 type PIWaiter interface {
 	GetProcessInstanceByKey(ctx context.Context, key string, opts ...services.CallOption) (d.ProcessInstance, error)
-	GetProcessInstanceStateByKey(ctx context.Context, key string, opts ...services.CallOption) (d.State, error)
+	GetProcessInstanceStateByKey(ctx context.Context, key string, opts ...services.CallOption) (d.State, d.ProcessInstance, error)
 }
 
 // WaitForProcessInstanceState waits until the instance reaches one of the desired states.
@@ -39,7 +39,7 @@ func WaitForProcessInstanceState(ctx context.Context, s PIWaiter, cfg *config.Co
 			return "", errInDelay
 		}
 		attempts++
-		got, errInDelay := s.GetProcessInstanceStateByKey(ctx, key)
+		got, _, errInDelay := s.GetProcessInstanceStateByKey(ctx, key)
 		if errInDelay == nil {
 			if stateIn(got, desired) {
 				if attempts == 1 {

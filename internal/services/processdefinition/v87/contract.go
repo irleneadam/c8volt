@@ -6,12 +6,12 @@ import (
 	operatev87 "github.com/grafvonb/c8volt/internal/clients/camunda/v87/operate"
 )
 
-type GenClusterClientCamunda interface {
+type GenProcessDefinitionClientCamunda interface {
 }
 
-type GenClusterClientOperate interface {
+type GenProcessDefinitionClientOperate interface {
 	GetProcessDefinitionByKeyWithResponse(ctx context.Context, key int64, reqEditors ...operatev87.RequestEditorFn) (*operatev87.GetProcessDefinitionByKeyResponse, error)
 	SearchProcessDefinitionsWithResponse(ctx context.Context, body operatev87.SearchProcessDefinitionsJSONRequestBody, reqEditors ...operatev87.RequestEditorFn) (*operatev87.SearchProcessDefinitionsResponse, error)
 }
 
-var _ GenClusterClientOperate = (*operatev87.ClientWithResponses)(nil)
+var _ GenProcessDefinitionClientOperate = (*operatev87.ClientWithResponses)(nil)

@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	flagDeletePIKey        string
-	flagDeletePIWithCancel bool
+	flagDeletePIKey       string
+	flagDeletePIWithForce bool
 )
 
 var deleteProcessInstanceCmd = &cobra.Command{
@@ -34,5 +34,5 @@ func init() {
 
 	deleteProcessInstanceCmd.Flags().StringVarP(&flagDeletePIKey, "key", "k", "", "process instance key to delete")
 	_ = deleteProcessInstanceCmd.MarkFlagRequired("key")
-	deleteProcessInstanceCmd.Flags().BoolVar(&flagDeletePIWithCancel, "with-cancel", false, "cancel the process instance before deleting it")
+	deleteProcessInstanceCmd.Flags().BoolVar(&flagDeletePIWithForce, "force", false, "force cancellation of the process instance, prior to deletion")
 }
