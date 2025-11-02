@@ -43,15 +43,16 @@ var embedDeployCmd = &cobra.Command{
 			if err != nil {
 				ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("read embedded %q: %w", f, err))
 			}
-			log.Debug(fmt.Sprintf("deploying embedded process definition %q to tenant %s", f, cfg.App.ViewTenant()))
+			log.Debug(fmt.Sprintf("deploying embedded resource(s) %q to tenant %s", f, cfg.App.ViewTenant()))
 			units = append(units, resource.DeploymentUnitData{Name: f, Data: data})
 		}
 
+		// TODO (Adam): currently only deployment of process definitions is supported, extend to other resource types as needed
 		_, err = cli.DeployProcessDefinition(cmd.Context(), cfg.App.Tenant, units, collectOptions()...)
 		if err != nil {
-			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("deploying embedded process definitions: %w", err))
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("deploying embedded resource(s): %w", err))
 		}
-		log.Info(fmt.Sprintf("deployed %d embedded process definition(s) to tenant %q", len(units), cfg.App.ViewTenant()))
+		log.Info(fmt.Sprintf("deployed %d embedded resources(s) to tenant %q", len(units), cfg.App.ViewTenant()))
 	},
 }
 

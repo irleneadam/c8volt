@@ -119,6 +119,21 @@ You should see output like this:
 
 ## Highlights
 
+### Scripting Support
+
+#### Error Codes
+
+In case of errors, c8volt returns specific exit codes that can be used in scripts to handle different error scenarios.
+If you do not want to deal with specific error codes, you can use the `--no-err-codes` flag to make c8volt always return exit code 0.
+
+#### Command Pipelining
+
+
+
+
+
+## ---
+
 c8volt simplifies various tasks related to Camunda 8, including these special use cases:
 
 - **Delete active process instances by cancelling them first**
