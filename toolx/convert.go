@@ -238,6 +238,7 @@ func Int64ToString(v int64) string {
 	return strconv.FormatInt(v, 10)
 }
 
+// MapMap maps a map’s values to a new map with the same keys.
 func MapMap[K comparable, S any, D any](in map[K]S, f func(S) D) map[K]D {
 	if in == nil {
 		return nil
@@ -247,4 +248,45 @@ func MapMap[K comparable, S any, D any](in map[K]S, f func(S) D) map[K]D {
 		out[k] = f(v)
 	}
 	return out
+}
+
+// PtrIfNonEmptyMap returns *map when m has at least one entry, otherwise nil.
+// The pointer is to a copy of the map header, not a deep copy.
+func PtrIfNonEmptyMap[K comparable, V any](m map[K]V) *map[K]V {
+	if len(m) == 0 {
+		return nil
+	}
+	cp := m
+	return &cp
+}
+
+// PtrIfNonEmptySlice returns *[]T when s has at least one element, otherwise nil.
+func PtrIfNonEmptySlice[T any](s []T) *[]T {
+	if len(s) == 0 {
+		return nil
+	}
+	cp := s
+	return &cp
+}
+
+// CopyMap returns a shallow copy of in (nil-safe).
+func CopyMap[K comparable, V any](in map[K]V) map[K]V {
+	if in == nil {
+		return nil
+	}
+	out := make(map[K]V, len(in))
+	for k, v := range in {
+		out[k] = v
+	}
+	return out
+}
+
+// PtrCopyMap returns a pointer to a new shallow copy of in.
+// Nil-safe. Uses CopyMap.
+func PtrCopyMap[K comparable, V any](in map[K]V) *map[K]V {
+	if in == nil {
+		return nil
+	}
+	out := CopyMap(in)
+	return &out
 }

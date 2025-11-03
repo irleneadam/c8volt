@@ -11,24 +11,6 @@ import (
 	"github.com/grafvonb/c8volt/toolx"
 )
 
-type API interface {
-	SearchProcessDefinitions(ctx context.Context, filter ProcessDefinitionSearchFilterOpts, size int32, opts ...options.FacadeOption) (ProcessDefinitions, error)
-	GetProcessDefinitionsLatest(ctx context.Context) (ProcessDefinitions, error)
-	GetProcessDefinitionByKey(ctx context.Context, key string, opts ...options.FacadeOption) (ProcessDefinition, error)
-	GetProcessDefinitionsByBpmnProcessId(ctx context.Context, bpmnProcessId string, opts ...options.FacadeOption) (ProcessDefinitions, error)
-	GetProcessDefinitionByBpmnProcessIdLatest(ctx context.Context, bpmnProcessId string, opts ...options.FacadeOption) (ProcessDefinition, error)
-	GetProcessDefinitionByBpmnProcessIdAndVersion(ctx context.Context, bpmnProcessId string, version int32, opts ...options.FacadeOption) (ProcessDefinition, error)
-
-	GetProcessInstanceByKey(ctx context.Context, key string, opts ...options.FacadeOption) (ProcessInstance, error)
-	SearchProcessInstances(ctx context.Context, filter ProcessInstanceSearchFilterOpts, size int32, opts ...options.FacadeOption) (ProcessInstances, error)
-	CancelProcessInstance(ctx context.Context, key string, opts ...options.FacadeOption) (CancelResponse, error)
-	GetDirectChildrenOfProcessInstance(ctx context.Context, key string, opts ...options.FacadeOption) (ProcessInstances, error)
-	FilterProcessInstanceWithOrphanParent(ctx context.Context, items []ProcessInstance, opts ...options.FacadeOption) ([]ProcessInstance, error)
-	DeleteProcessInstance(ctx context.Context, key string, opts ...options.FacadeOption) (ChangeStatus, error)
-	WaitForProcessInstanceState(ctx context.Context, key string, desired States, opts ...options.FacadeOption) (State, error)
-	Walker
-}
-
 type client struct {
 	pdApi pdsvc.API
 	piApi pisvc.API
@@ -39,6 +21,14 @@ func New(pdApi pdsvc.API, piApi pisvc.API) API {
 		pdApi: pdApi,
 		piApi: piApi,
 	}
+}
+
+func (c *client) CreateProcessInstance(ctx context.Context, data ProcessInstanceData, opts ...options.FacadeOption) (ProcessInstance, error) {
+	pic, err := c.piApi.CreateProcessInstance(ctx, toProcessInstanceData(data), options.MapFacadeOptionsToCallOptions(opts)...)
+	if err != nil {
+		return ProcessInstance{}, ferrors.FromDomain(err)
+	}
+	return fromDomainProcessInstanceCreation(pic), nil
 }
 
 func (c *client) SearchProcessDefinitions(ctx context.Context, filter ProcessDefinitionSearchFilterOpts, size int32, opts ...options.FacadeOption) (ProcessDefinitions, error) {
@@ -139,6 +129,6 @@ func (c *client) DeleteProcessInstance(ctx context.Context, key string, opts ...
 }
 
 func (c *client) WaitForProcessInstanceState(ctx context.Context, key string, desired States, opts ...options.FacadeOption) (State, error) {
-	got, err := c.piApi.WaitForProcessInstanceState(ctx, key, toolx.MapSlice(desired, func(s State) d.State { return d.State(s) }), options.MapFacadeOptionsToCallOptions(opts)...)
+	got, _, err := c.piApi.WaitForProcessInstanceState(ctx, key, toolx.MapSlice(desired, func(s State) d.State { return d.State(s) }), options.MapFacadeOptionsToCallOptions(opts)...)
 	return State(got), ferrors.FromDomain(err)
 }

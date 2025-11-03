@@ -51,6 +51,24 @@ func New(cfg *config.Config, httpClient *http.Client, log *slog.Logger, opts ...
 	return s, nil
 }
 
+func (s *Service) CreateProcessInstance(ctx context.Context, data d.ProcessInstanceData, opts ...services.CallOption) (d.ProcessInstanceCreation, error) {
+	_ = services.ApplyCallOptions(opts)
+	s.log.Debug(fmt.Sprintf("creating new process instance with process definition id %s", data.ProcessDefinitionSpecificId))
+	body := toProcessInstanceCreationInstruction(data)
+	resp, err := s.cc.PostProcessInstancesWithResponse(ctx, body)
+	if err != nil {
+		return d.ProcessInstanceCreation{}, err
+	}
+	if err = httpc.HttpStatusErr(resp.HTTPResponse, resp.Body); err != nil {
+		return d.ProcessInstanceCreation{}, err
+	}
+	if resp.JSON200 == nil {
+		return d.ProcessInstanceCreation{}, fmt.Errorf("%w: 200 OK but empty payload; body=%s",
+			d.ErrMalformedResponse, string(resp.Body))
+	}
+	return fromPostProcessInstancesResponse(*resp.JSON200), nil
+}
+
 func (s *Service) GetProcessInstanceByKey(ctx context.Context, key string, opts ...services.CallOption) (d.ProcessInstance, error) {
 	_ = services.ApplyCallOptions(opts)
 	oldKey, err := toolx.StringToInt64(key)
@@ -186,7 +204,7 @@ func (s *Service) CancelProcessInstance(ctx context.Context, key string, opts ..
 	if !cCfg.NoWait {
 		s.log.Info(fmt.Sprintf("waiting for process instance with key %s to be cancelled by workflow engine...", key))
 		states := []d.State{d.StateCanceled, d.StateTerminated}
-		if _, err = waiter.WaitForProcessInstanceState(ctx, s, s.cfg, s.log, key, states, opts...); err != nil {
+		if _, _, err = waiter.WaitForProcessInstanceState(ctx, s, s.cfg, s.log, key, states, opts...); err != nil {
 			return d.CancelResponse{}, fmt.Errorf("waiting for canceled state failed for %s: %w", key, err)
 		}
 	}
@@ -239,7 +257,7 @@ func (s *Service) DeleteProcessInstance(ctx context.Context, key string, opts ..
 			}
 			s.log.Info(fmt.Sprintf("waiting for process instance with key %s to be cancelled by workflow engine...", key))
 			states := []d.State{d.StateCanceled, d.StateTerminated}
-			if _, err = waiter.WaitForProcessInstanceState(ctx, s, s.cfg, s.log, key, states); err != nil {
+			if _, _, err = waiter.WaitForProcessInstanceState(ctx, s, s.cfg, s.log, key, states); err != nil {
 				return d.ChangeStatus{}, fmt.Errorf("waiting for canceled state failed for %s: %w", key, err)
 			}
 			s.log.Info(fmt.Sprintf("retrying deletion of process instance with key %d", oldKey))
@@ -259,7 +277,7 @@ func (s *Service) DeleteProcessInstance(ctx context.Context, key string, opts ..
 	}, nil
 }
 
-func (s *Service) WaitForProcessInstanceState(ctx context.Context, key string, desired d.States, opts ...services.CallOption) (d.State, error) {
+func (s *Service) WaitForProcessInstanceState(ctx context.Context, key string, desired d.States, opts ...services.CallOption) (d.State, d.ProcessInstance, error) {
 	return waiter.WaitForProcessInstanceState(ctx, s, s.cfg, s.log, key, desired, opts...)
 }
 

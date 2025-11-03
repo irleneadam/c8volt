@@ -20,7 +20,7 @@ type PIWaiter interface {
 // WaitForProcessInstanceState waits until the instance reaches one of the desired states.
 // - Respects ctx cancellation/deadline; augments with cfg.Timeout if set
 // - Returns nil on success or an error on failure/timeout.
-func WaitForProcessInstanceState(ctx context.Context, s PIWaiter, cfg *config.Config, log *slog.Logger, key string, desired d.States, opts ...services.CallOption) (d.State, error) {
+func WaitForProcessInstanceState(ctx context.Context, s PIWaiter, cfg *config.Config, log *slog.Logger, key string, desired d.States, opts ...services.CallOption) (d.State, d.ProcessInstance, error) {
 	_ = services.ApplyCallOptions(opts)
 	backoff := cfg.App.Backoff
 	if backoff.Timeout > 0 {
@@ -36,18 +36,18 @@ func WaitForProcessInstanceState(ctx context.Context, s PIWaiter, cfg *config.Co
 	delay := backoff.InitialDelay
 	for {
 		if errInDelay := ctx.Err(); errInDelay != nil {
-			return "", errInDelay
+			return "", d.ProcessInstance{}, errInDelay
 		}
 		attempts++
-		got, _, errInDelay := s.GetProcessInstanceStateByKey(ctx, key)
+		got, pi, errInDelay := s.GetProcessInstanceStateByKey(ctx, key)
 		if errInDelay == nil {
 			if stateIn(got, desired) {
 				if attempts == 1 {
 					log.Debug(fmt.Sprintf("process instance %s is already in one of the desired state(s) [%s] (current: %s)", key, desired, got))
-					return got, nil
+					return got, pi, nil
 				}
 				log.Debug(fmt.Sprintf("process instance %s reached one of the desired state(s) [%s] (current: %s) after %d checks", key, desired, got, attempts))
-				return got, nil
+				return got, pi, nil
 			}
 			log.Info(fmt.Sprintf("process instance %s currently in state %s; waiting...", key, got))
 		} else if errInDelay != nil {
@@ -58,13 +58,13 @@ func WaitForProcessInstanceState(ctx context.Context, s PIWaiter, cfg *config.Co
 			}
 		}
 		if backoff.MaxRetries > 0 && attempts >= backoff.MaxRetries {
-			return "", fmt.Errorf("exceeded max_retries (%d) waiting for state %q", backoff.MaxRetries, desired)
+			return "", d.ProcessInstance{}, fmt.Errorf("exceeded max_retries (%d) waiting for state %q", backoff.MaxRetries, desired)
 		}
 		select {
 		case <-time.After(delay):
 			delay = backoff.NextDelay(delay)
 		case <-ctx.Done():
-			return "", fmt.Errorf("%w: %s", d.ErrGatewayTimeout, ctx.Err().Error())
+			return "", d.ProcessInstance{}, fmt.Errorf("%w: %s", d.ErrGatewayTimeout, ctx.Err().Error())
 		}
 	}
 }

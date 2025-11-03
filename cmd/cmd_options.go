@@ -4,7 +4,7 @@ import "github.com/grafvonb/c8volt/c8volt/options"
 
 func collectOptions() []options.FacadeOption {
 	var opts []options.FacadeOption
-	if flagCancelNoWait {
+	if flagCancelNoWait || flagRunNoWait {
 		opts = append(opts, options.WithNoWait())
 	}
 	if flagCancelNoStateCheck {

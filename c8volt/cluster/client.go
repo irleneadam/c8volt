@@ -8,10 +8,6 @@ import (
 	csvc "github.com/grafvonb/c8volt/internal/services/cluster"
 )
 
-type API interface {
-	GetClusterTopology(ctx context.Context, opts ...options.FacadeOption) (Topology, error)
-}
-
 type client struct{ api csvc.API }
 
 func New(api csvc.API) API { return &client{api: api} }

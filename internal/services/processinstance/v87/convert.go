@@ -1,6 +1,7 @@
 package v87
 
 import (
+	camundav87 "github.com/grafvonb/c8volt/internal/clients/camunda/v87/camunda"
 	operatev87 "github.com/grafvonb/c8volt/internal/clients/camunda/v87/operate"
 	d "github.com/grafvonb/c8volt/internal/domain"
 	"github.com/grafvonb/c8volt/toolx"
@@ -20,5 +21,25 @@ func fromProcessInstanceResponse(r operatev87.ProcessInstance) d.ProcessInstance
 		StartDate:                 toolx.Deref(r.StartDate, ""),
 		State:                     d.State(*r.State),
 		TenantId:                  toolx.Deref(r.TenantId, ""),
+	}
+}
+
+func toProcessInstanceCreationInstruction(pi d.ProcessInstanceData) camundav87.ProcessInstanceCreationInstruction {
+	return camundav87.PostProcessInstancesJSONRequestBody{
+		ProcessDefinitionId:      toolx.PtrIf(pi.BpmnProcessId, ""),
+		ProcessDefinitionVersion: toolx.PtrIfNonZero(pi.ProcessDefinitionVersion),
+		TenantId:                 toolx.PtrIf(pi.TenantId, ""),
+		Variables:                toolx.PtrCopyMap(pi.Variables),
+	}
+}
+
+func fromPostProcessInstancesResponse(r camundav87.CreateProcessInstanceResult) d.ProcessInstanceCreation {
+	return d.ProcessInstanceCreation{
+		Key:                      "<unknown in v87>",
+		BpmnProcessId:            toolx.Deref(r.ProcessDefinitionId, ""),
+		ProcessDefinitionKey:     "<unknown in v87>",
+		ProcessDefinitionVersion: toolx.Deref(r.ProcessDefinitionVersion, int32(0)),
+		TenantId:                 toolx.Deref(r.TenantId, ""),
+		Variables:                toolx.CopyMap(*r.Variables),
 	}
 }

@@ -38,6 +38,19 @@ func fromDomainProcessInstance(x d.ProcessInstance) ProcessInstance {
 		StartDate:                 x.StartDate,
 		State:                     State(x.State),
 		TenantId:                  x.TenantId,
+		Variables:                 toolx.CopyMap(x.Variables),
+	}
+}
+
+func fromDomainProcessInstanceCreation(x d.ProcessInstanceCreation) ProcessInstance {
+	return ProcessInstance{
+		Key:                  x.Key,
+		BpmnProcessId:        x.BpmnProcessId,
+		ProcessDefinitionKey: x.ProcessDefinitionKey,
+		ProcessVersion:       x.ProcessDefinitionVersion,
+		Variables:            toolx.CopyMap(x.Variables),
+		TenantId:             x.TenantId,
+		StartDate:            x.StartDate,
 	}
 }
 
@@ -67,6 +80,7 @@ func toDomainProcessInstance(x ProcessInstance) d.ProcessInstance {
 		StartDate:                 x.StartDate,
 		State:                     d.State(x.State),
 		TenantId:                  x.TenantId,
+		Variables:                 toolx.CopyMap(x.Variables),
 	}
 }
 
@@ -87,5 +101,15 @@ func toDomainProcessInstanceFilter(x ProcessInstanceSearchFilterOpts) d.ProcessI
 		ProcessVersionTag: x.ProcessVersionTag,
 		State:             d.State(x.State),
 		ParentKey:         x.ParentKey,
+	}
+}
+
+func toProcessInstanceData(x ProcessInstanceData) d.ProcessInstanceData {
+	return d.ProcessInstanceData{
+		BpmnProcessId:               x.BpmnProcessId,
+		ProcessDefinitionSpecificId: x.ProcessDefinitionSpecificId,
+		ProcessDefinitionVersion:    x.ProcessDefinitionVersion,
+		Variables:                   toolx.CopyMap(x.Variables),
+		TenantId:                    x.TenantId,
 	}
 }

@@ -6,6 +6,8 @@ import (
 )
 
 var (
+	flagRunNoWait bool
+
 	flagRunTenantId string
 )
 
@@ -25,4 +27,5 @@ func init() {
 	addBackoffFlagsAndBindings(runCmd, viper.GetViper())
 
 	runCmd.PersistentFlags().StringVarP(&flagRunTenantId, "tenant-id", "t", "", "tenant id for the run")
+	runCmd.PersistentFlags().BoolVar(&flagRunNoWait, "no-wait", false, "skip waiting for the creation to be fully processed (no status checks)")
 }

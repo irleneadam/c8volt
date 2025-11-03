@@ -5,8 +5,6 @@ import (
 	pisvc "github.com/grafvonb/c8volt/internal/services/processinstance"
 )
 
-type API interface{}
-
 type client struct {
 	pdApi pdsvc.API
 	piApi pisvc.API

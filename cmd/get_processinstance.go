@@ -53,7 +53,7 @@ var getProcessInstanceCmd = &cobra.Command{
 			}
 			err = processInstanceView(cmd, pi)
 			if err != nil {
-				ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("error rendering key-only view: %w", err))
+				ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("error rendering view: %w", err))
 			}
 			log.Debug(fmt.Sprintf("searched by key, found process instance with key: %s", pi.Key))
 		} else {
