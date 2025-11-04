@@ -7,14 +7,6 @@ import (
 	"io"
 )
 
-// newJSONEncoder returns a JSON encoder configured with pretty printing and HTML escaping disabled.
-func newJSONEncoder(w io.Writer) *json.Encoder {
-	enc := json.NewEncoder(w)
-	enc.SetIndent("", "  ")
-	enc.SetEscapeHTML(false)
-	return enc
-}
-
 // JSON writes v as pretty-printed JSON to io.Writer
 func JSON(w io.Writer, v any) error {
 	return newJSONEncoder(w).Encode(v)
@@ -27,4 +19,12 @@ func ToJSONString(v any) string {
 		return fmt.Sprintf("error encoding JSON: %v", err)
 	}
 	return buf.String()
+}
+
+// newJSONEncoder returns a JSON encoder configured with pretty printing and HTML escaping disabled.
+func newJSONEncoder(w io.Writer) *json.Encoder {
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "  ")
+	enc.SetEscapeHTML(false)
+	return enc
 }

@@ -21,7 +21,7 @@ func New(log *slog.Logger, opts ...Option) (*Service, error) {
 	if log == nil {
 		return nil, errors.New("logger must not be nil")
 	}
-	log.Debug("Using 'none' authenticator: no authentication will be performed")
+	log.Debug("using 'none' authenticator: no authentication will be performed")
 
 	s := &Service{log: log}
 	for _, opt := range opts {
