@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/grafvonb/c8volt/config"
 	camundav88 "github.com/grafvonb/c8volt/internal/clients/camunda/v88/camunda"
@@ -79,9 +80,10 @@ func (s *Service) CreateProcessInstance(ctx context.Context, data d.ProcessInsta
 			return d.ProcessInstanceCreation{}, fmt.Errorf("waiting for started state failed for %s: %w", pi.Key, err)
 		}
 		pi.StartDate = created.StartDate
-		s.log.Info(fmt.Sprintf("process instance %s succesfully created (start confirmed at %s) using process definition id %s, %s, v%d, tenant: %s", pi.Key, pi.StartDate, pi.ProcessDefinitionKey, pi.BpmnProcessId, pi.ProcessDefinitionVersion, pi.TenantId))
+		pi.StartConfirmedAt = time.Now().UTC().Format(time.RFC3339)
+		s.log.Info(fmt.Sprintf("process instance %s succesfully created (start registered at %s and confirmed at %s) using process definition id %s, %s, v%d, tenant: %s", pi.Key, pi.StartDate, pi.StartConfirmedAt, pi.ProcessDefinitionKey, pi.BpmnProcessId, pi.ProcessDefinitionVersion, pi.TenantId))
 	} else {
-		s.log.Info(fmt.Sprintf("process instance creation with the key %s requested (run not confirmed, as no-wait is set) using process definition id %s, %s, v%d, tenant: %s", pi.Key, pi.ProcessDefinitionKey, pi.BpmnProcessId, pi.ProcessDefinitionVersion, pi.TenantId))
+		s.log.Info(fmt.Sprintf("process instance creation with the key %s requested at %s (run not confirmed, as no-wait is set) using process definition id %s, %s, v%d, tenant: %s", pi.Key, pi.StartDate, pi.ProcessDefinitionKey, pi.BpmnProcessId, pi.ProcessDefinitionVersion, pi.TenantId))
 	}
 	return pi, nil
 }

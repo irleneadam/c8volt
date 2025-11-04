@@ -109,5 +109,6 @@ func fromPostProcessInstancesResponse(r camundav88.CreateProcessInstanceResult) 
 		ProcessDefinitionVersion: r.ProcessDefinitionVersion,
 		TenantId:                 r.TenantId,
 		Variables:                toolx.CopyMap(r.Variables),
+		StartConfirmedAt:         "<not available>",
 	}
 }

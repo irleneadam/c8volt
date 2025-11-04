@@ -59,4 +59,5 @@ type ProcessInstanceCreation struct {
 	TenantId                 string                 `json:"tenantId,omitempty"`
 	Variables                map[string]interface{} `json:"variables,omitempty"`
 	StartDate                string                 `json:"startDate,omitempty"`
+	StartConfirmedAt         string                 `json:"startConfirmedAt,omitempty"`
 }

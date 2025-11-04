@@ -142,6 +142,28 @@ found: 3
 2251799813685773 <default> C88_SimpleParentProcess v1/v1.0.0
 2251799813685774 <default> C88_SimpleUserTask_Process v1/v1.0.0
 ```
+And run a process instance using standard run command:
+```bash
+INFO waiting for process instance with key 2251799813909860 to be started by workflow engine...
+INFO process instance 2251799813909860 succesfully created (start registered at 2025-11-04T09:06:36.161Z and confirmed at 2025-11-04T09:06:39Z) using process definition id 2251799813685772, C88_MultipleSubProcessesParentProcess, v1, tenant: <default>
+```
+If you want to modify the embedded BPMN models, you can export them to a local folder with:
+```bash
+$ ./c8volt embed export -f processdefinitions/C88_SimpleParentProcess.bpmn -o ./exported_models
+INFO exported 1 embedded resource(s) to "exported_models"
+```
+Modify it with Camunda Modeler or any text editor and deploy it back with "normal" deployment command:
+```bash
+$ ./c8volt deploy pd -f ./exported_models/processdefinitions/C88_SimpleParentProcess.bpmn
+found: 1
+2251799813906559 <default> C88_SimpleParentProcess v2 vC88_SimpleParentProcess.bpmn (2251799813906558)
+```
+And run a process instance of the modified model:
+```bash
+$ ./c8volt run pi -b C88_SimpleParentProcess
+INFO waiting for process instance with key 2251799813909382 to be started by workflow engine...
+INFO process instance 2251799813909382 succesfully created (start registered at 2025-11-04T09:03:27.05Z and confirmed at 2025-11-04T09:03:30Z) using process definition id 2251799813906559, C88_SimpleParentProcess, v2, tenant: <default>
+```
 
 ### Running Process Instances
 
