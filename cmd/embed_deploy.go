@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/fs"
 	"slices"
+	"strings"
 
 	"github.com/grafvonb/c8volt/c8volt/ferrors"
 	"github.com/grafvonb/c8volt/c8volt/resource"
@@ -13,6 +14,7 @@ import (
 
 var (
 	flagEmbedDeployFileNames []string
+	flagEmbedDeployAll       bool
 )
 
 var embedDeployCmd = &cobra.Command{
@@ -29,16 +31,30 @@ var embedDeployCmd = &cobra.Command{
 		if err != nil {
 			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, err)
 		}
-		if len(flagEmbedDeployFileNames) == 0 {
-			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("at least one --file is required"))
-		}
-		for _, f := range flagEmbedDeployFileNames {
-			if !slices.Contains(all, f) {
-				ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("embedded file %q not found, run command 'embed list' to see all available embedded files, no deployment done", f))
+		var toDeploy []string
+		switch {
+		case flagEmbedDeployAll:
+			for _, d := range all {
+				if strings.Contains(d, cfg.App.CamundaVersion.FilePrefix()) {
+					toDeploy = append(toDeploy, d)
+				}
 			}
+			if len(toDeploy) == 0 {
+				ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("no deployable embedded files found for Camunda version %q", cfg.App.CamundaVersion.String()))
+			}
+		case len(flagEmbedDeployFileNames) == 0:
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("either --all or at least one --file is required"))
+		default:
+			for _, f := range flagEmbedDeployFileNames {
+				if !slices.Contains(all, f) {
+					ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("embedded file %q not found, run command 'embed list' to see all available embedded files, no deployment done", f))
+				}
+			}
+			toDeploy = append(toDeploy, flagEmbedDeployFileNames...)
 		}
+
 		var units []resource.DeploymentUnitData
-		for _, f := range flagEmbedDeployFileNames {
+		for _, f := range toDeploy {
 			data, err := fs.ReadFile(embedded.FS, f)
 			if err != nil {
 				ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("read embedded %q: %w", f, err))
@@ -63,5 +79,5 @@ var embedDeployCmd = &cobra.Command{
 func init() {
 	embedCmd.AddCommand(embedDeployCmd)
 	embedDeployCmd.Flags().StringSliceVarP(&flagEmbedDeployFileNames, "file", "f", nil, "embedded file(s) to deploy (repeatable)")
-	_ = embedDeployCmd.MarkFlagRequired("file")
+	embedDeployCmd.Flags().BoolVar(&flagEmbedDeployAll, "all", false, "deploy all embedded files for the configured Camunda version")
 }

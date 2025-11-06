@@ -31,6 +31,19 @@ func (v CamundaVersion) String() string {
 	}
 }
 
+func (v CamundaVersion) FilePrefix() string {
+	switch v {
+	case V87:
+		return "C87_"
+	case V88:
+		return "C88_"
+	case V89:
+		return "C89_"
+	default:
+		return "unknown"
+	}
+}
+
 func NormalizeCamundaVersion(s string) (CamundaVersion, error) {
 	v := strings.TrimSpace(strings.ToLower(s))
 	switch v {

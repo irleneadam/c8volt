@@ -31,6 +31,18 @@ func (c *client) CreateProcessInstance(ctx context.Context, data ProcessInstance
 	return fromDomainProcessInstanceCreation(pic), nil
 }
 
+func (c *client) CreateProcessInstances(ctx context.Context, datas []ProcessInstanceData, opts ...options.FacadeOption) ([]ProcessInstance, error) {
+	pis := make([]ProcessInstance, 0, len(datas))
+	for _, data := range datas {
+		pic, err := c.piApi.CreateProcessInstance(ctx, toProcessInstanceData(data), options.MapFacadeOptionsToCallOptions(opts)...)
+		if err != nil {
+			return nil, ferrors.FromDomain(err)
+		}
+		pis = append(pis, fromDomainProcessInstanceCreation(pic))
+	}
+	return pis, nil
+}
+
 func (c *client) SearchProcessDefinitions(ctx context.Context, filter ProcessDefinitionSearchFilterOpts, size int32, opts ...options.FacadeOption) (ProcessDefinitions, error) {
 	pds, err := c.pdApi.SearchProcessDefinitions(ctx, toDomainProcessDefinitionFilter(filter), size, options.MapFacadeOptionsToCallOptions(opts)...)
 	if err != nil {

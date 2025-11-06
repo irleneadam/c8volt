@@ -15,6 +15,7 @@ type API interface {
 	GetProcessDefinitionByBpmnProcessIdAndVersion(ctx context.Context, bpmnProcessId string, version int32, opts ...options.FacadeOption) (ProcessDefinition, error)
 
 	CreateProcessInstance(ctx context.Context, data ProcessInstanceData, opts ...options.FacadeOption) (ProcessInstance, error)
+	CreateProcessInstances(ctx context.Context, datas []ProcessInstanceData, opts ...options.FacadeOption) ([]ProcessInstance, error)
 	GetProcessInstanceByKey(ctx context.Context, key string, opts ...options.FacadeOption) (ProcessInstance, error)
 	SearchProcessInstances(ctx context.Context, filter ProcessInstanceSearchFilterOpts, size int32, opts ...options.FacadeOption) (ProcessInstances, error)
 	CancelProcessInstance(ctx context.Context, key string, opts ...options.FacadeOption) (CancelResponse, error)

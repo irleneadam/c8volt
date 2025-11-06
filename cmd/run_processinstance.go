@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	flagRunPIProcessDefinitionBpmnProcessId string
+	flagRunPIProcessDefinitionBpmnProcessIds []string
 )
 
 var runProcessInstanceCmd = &cobra.Command{
@@ -22,13 +22,22 @@ var runProcessInstanceCmd = &cobra.Command{
 		if err != nil {
 			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, err)
 		}
-		data := process.ProcessInstanceData{
-			BpmnProcessId: flagRunPIProcessDefinitionBpmnProcessId,
+		l := len(flagRunPIProcessDefinitionBpmnProcessIds)
+		if l == 0 {
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("at least one BPMN process ID must be provided to run a process instance(s)"))
 		}
-		pi, err := cli.CreateProcessInstance(cmd.Context(), data, collectOptions()...)
+		datas := make([]process.ProcessInstanceData, 0, l)
+		for _, bpmnProcessId := range flagRunPIProcessDefinitionBpmnProcessIds {
+			data := process.ProcessInstanceData{
+				BpmnProcessId: bpmnProcessId,
+				TenantId:      cfg.App.Tenant,
+			}
+			datas = append(datas, data)
+		}
+		pi, err := cli.CreateProcessInstances(cmd.Context(), datas, collectOptions()...)
 		log.Debug(toolx.ToJSONString(pi))
 		if err != nil {
-			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("running process instance for process definition bpmn id %s: %w", flagRunPIProcessDefinitionBpmnProcessId, err))
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("running process instance(s) for BPMN process ID(s) %v: %w", flagRunPIProcessDefinitionBpmnProcessIds, err))
 		}
 	},
 }
@@ -36,5 +45,5 @@ var runProcessInstanceCmd = &cobra.Command{
 func init() {
 	runCmd.AddCommand(runProcessInstanceCmd)
 
-	runProcessInstanceCmd.Flags().StringVarP(&flagRunPIProcessDefinitionBpmnProcessId, "bpmn-process-id", "b", "", "BPMN process ID to run process instance for")
+	runProcessInstanceCmd.Flags().StringSliceVarP(&flagRunPIProcessDefinitionBpmnProcessIds, "bpmn-process-id", "b", nil, "BPMN process ID(s) to run process instance for")
 }
