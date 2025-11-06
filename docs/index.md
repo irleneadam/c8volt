@@ -2,7 +2,7 @@
 
 # c8volt - Yet Another Camunda 8 CLI Tool?
 
-No, **c8volt** is different. Its design and development focus on operational effectiveness, ensuring that done is done.
+No, [**c8volt**](https://github.com/grafvonb/c8volt) is different. Its design and development focus on operational effectiveness, ensuring that done is done.
 There are plenty of operational tasks where you want to be sure that:
 
 * A process instance was started – is it really active and running?
