@@ -13,7 +13,7 @@ import (
 
 func (c *client) CreateNProcessInstances(ctx context.Context, data ProcessInstanceData, n int, parallel int, opts ...options.FacadeOption) ([]ProcessInstance, error) {
 	cCfg := options.ApplyFacadeOptions(opts)
-	c.log.Debug(fmt.Sprintf("running %d process instances using %d workers with fail-fast=%t", n, parallel, cCfg.FailFast))
+	c.log.Info(fmt.Sprintf("running %d process instances using %d workers with fail-fast=%t", n, parallel, cCfg.FailFast))
 
 	if n <= 0 {
 		return nil, nil
