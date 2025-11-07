@@ -5,7 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/grafvonb/c8volt/c8volt/ferrors"
-	"github.com/grafvonb/c8volt/c8volt/options"
+	"github.com/grafvonb/c8volt/c8volt/foptions"
 	d "github.com/grafvonb/c8volt/internal/domain"
 	pdsvc "github.com/grafvonb/c8volt/internal/services/processdefinition"
 	pisvc "github.com/grafvonb/c8volt/internal/services/processinstance"
@@ -26,18 +26,18 @@ func New(pdApi pdsvc.API, piApi pisvc.API, log *slog.Logger) API {
 	}
 }
 
-func (c *client) CreateProcessInstance(ctx context.Context, data ProcessInstanceData, opts ...options.FacadeOption) (ProcessInstance, error) {
-	pic, err := c.piApi.CreateProcessInstance(ctx, toProcessInstanceData(data), options.MapFacadeOptionsToCallOptions(opts)...)
+func (c *client) CreateProcessInstance(ctx context.Context, data ProcessInstanceData, opts ...foptions.FacadeOption) (ProcessInstance, error) {
+	pic, err := c.piApi.CreateProcessInstance(ctx, toProcessInstanceData(data), foptions.MapFacadeOptionsToCallOptions(opts)...)
 	if err != nil {
 		return ProcessInstance{}, ferrors.FromDomain(err)
 	}
 	return fromDomainProcessInstanceCreation(pic), nil
 }
 
-func (c *client) CreateProcessInstances(ctx context.Context, datas []ProcessInstanceData, opts ...options.FacadeOption) ([]ProcessInstance, error) {
+func (c *client) CreateProcessInstances(ctx context.Context, datas []ProcessInstanceData, opts ...foptions.FacadeOption) ([]ProcessInstance, error) {
 	pis := make([]ProcessInstance, 0, len(datas))
 	for _, data := range datas {
-		pic, err := c.piApi.CreateProcessInstance(ctx, toProcessInstanceData(data), options.MapFacadeOptionsToCallOptions(opts)...)
+		pic, err := c.piApi.CreateProcessInstance(ctx, toProcessInstanceData(data), foptions.MapFacadeOptionsToCallOptions(opts)...)
 		if err != nil {
 			return nil, ferrors.FromDomain(err)
 		}
@@ -46,8 +46,8 @@ func (c *client) CreateProcessInstances(ctx context.Context, datas []ProcessInst
 	return pis, nil
 }
 
-func (c *client) SearchProcessDefinitions(ctx context.Context, filter ProcessDefinitionSearchFilterOpts, size int32, opts ...options.FacadeOption) (ProcessDefinitions, error) {
-	pds, err := c.pdApi.SearchProcessDefinitions(ctx, toDomainProcessDefinitionFilter(filter), size, options.MapFacadeOptionsToCallOptions(opts)...)
+func (c *client) SearchProcessDefinitions(ctx context.Context, filter ProcessDefinitionSearchFilterOpts, size int32, opts ...foptions.FacadeOption) (ProcessDefinitions, error) {
+	pds, err := c.pdApi.SearchProcessDefinitions(ctx, toDomainProcessDefinitionFilter(filter), size, foptions.MapFacadeOptionsToCallOptions(opts)...)
 	if err != nil {
 		return ProcessDefinitions{}, ferrors.FromDomain(err)
 	}
@@ -62,88 +62,88 @@ func (c *client) GetProcessDefinitionsLatest(ctx context.Context) (ProcessDefini
 	return fromDomainProcessDefinitions(pds), nil
 }
 
-func (c *client) GetProcessDefinitionByKey(ctx context.Context, key string, opts ...options.FacadeOption) (ProcessDefinition, error) {
-	pd, err := c.pdApi.GetProcessDefinitionByKey(ctx, key, options.MapFacadeOptionsToCallOptions(opts)...)
+func (c *client) GetProcessDefinitionByKey(ctx context.Context, key string, opts ...foptions.FacadeOption) (ProcessDefinition, error) {
+	pd, err := c.pdApi.GetProcessDefinitionByKey(ctx, key, foptions.MapFacadeOptionsToCallOptions(opts)...)
 	if err != nil {
 		return ProcessDefinition{}, ferrors.FromDomain(err)
 	}
 	return fromDomainProcessDefinition(pd), nil
 }
 
-func (c *client) GetProcessDefinitionsByBpmnProcessId(ctx context.Context, bpmnProcessId string, opts ...options.FacadeOption) (ProcessDefinitions, error) {
-	pds, err := c.pdApi.GetProcessDefinitionVersionsByBpmnProcessId(ctx, bpmnProcessId, options.MapFacadeOptionsToCallOptions(opts)...)
+func (c *client) GetProcessDefinitionsByBpmnProcessId(ctx context.Context, bpmnProcessId string, opts ...foptions.FacadeOption) (ProcessDefinitions, error) {
+	pds, err := c.pdApi.GetProcessDefinitionVersionsByBpmnProcessId(ctx, bpmnProcessId, foptions.MapFacadeOptionsToCallOptions(opts)...)
 	if err != nil {
 		return ProcessDefinitions{}, ferrors.FromDomain(err)
 	}
 	return fromDomainProcessDefinitions(pds), nil
 }
 
-func (c *client) GetProcessDefinitionByBpmnProcessIdLatest(ctx context.Context, bpmnProcessId string, opts ...options.FacadeOption) (ProcessDefinition, error) {
-	pd, err := c.pdApi.GetProcessDefinitionByBpmnProcessIdLatest(ctx, bpmnProcessId, options.MapFacadeOptionsToCallOptions(opts)...)
+func (c *client) GetProcessDefinitionByBpmnProcessIdLatest(ctx context.Context, bpmnProcessId string, opts ...foptions.FacadeOption) (ProcessDefinition, error) {
+	pd, err := c.pdApi.GetProcessDefinitionByBpmnProcessIdLatest(ctx, bpmnProcessId, foptions.MapFacadeOptionsToCallOptions(opts)...)
 	if err != nil {
 		return ProcessDefinition{}, ferrors.FromDomain(err)
 	}
 	return fromDomainProcessDefinition(pd), nil
 }
 
-func (c *client) GetProcessDefinitionByBpmnProcessIdAndVersion(ctx context.Context, bpmnProcessId string, version int32, opts ...options.FacadeOption) (ProcessDefinition, error) {
-	pd, err := c.pdApi.GetProcessDefinitionByBpmnProcessIdAndVersion(ctx, bpmnProcessId, version, options.MapFacadeOptionsToCallOptions(opts)...)
+func (c *client) GetProcessDefinitionByBpmnProcessIdAndVersion(ctx context.Context, bpmnProcessId string, version int32, opts ...foptions.FacadeOption) (ProcessDefinition, error) {
+	pd, err := c.pdApi.GetProcessDefinitionByBpmnProcessIdAndVersion(ctx, bpmnProcessId, version, foptions.MapFacadeOptionsToCallOptions(opts)...)
 	if err != nil {
 		return ProcessDefinition{}, ferrors.FromDomain(err)
 	}
 	return fromDomainProcessDefinition(pd), nil
 }
 
-func (c *client) GetProcessInstanceByKey(ctx context.Context, key string, opts ...options.FacadeOption) (ProcessInstance, error) {
-	pi, err := c.piApi.GetProcessInstanceByKey(ctx, key, options.MapFacadeOptionsToCallOptions(opts)...)
+func (c *client) GetProcessInstanceByKey(ctx context.Context, key string, opts ...foptions.FacadeOption) (ProcessInstance, error) {
+	pi, err := c.piApi.GetProcessInstanceByKey(ctx, key, foptions.MapFacadeOptionsToCallOptions(opts)...)
 	if err != nil {
 		return ProcessInstance{}, ferrors.FromDomain(err)
 	}
 	return fromDomainProcessInstance(pi), nil
 }
 
-func (c *client) SearchProcessInstances(ctx context.Context, filter ProcessInstanceSearchFilterOpts, size int32, opts ...options.FacadeOption) (ProcessInstances, error) {
-	pis, err := c.piApi.SearchForProcessInstances(ctx, toDomainProcessInstanceFilter(filter), size, options.MapFacadeOptionsToCallOptions(opts)...)
+func (c *client) SearchProcessInstances(ctx context.Context, filter ProcessInstanceSearchFilterOpts, size int32, opts ...foptions.FacadeOption) (ProcessInstances, error) {
+	pis, err := c.piApi.SearchForProcessInstances(ctx, toDomainProcessInstanceFilter(filter), size, foptions.MapFacadeOptionsToCallOptions(opts)...)
 	if err != nil {
 		return ProcessInstances{}, ferrors.FromDomain(err)
 	}
 	return fromDomainProcessInstances(pis), nil
 }
 
-func (c *client) CancelProcessInstance(ctx context.Context, key string, opts ...options.FacadeOption) (CancelResponse, error) {
-	resp, err := c.piApi.CancelProcessInstance(ctx, key, options.MapFacadeOptionsToCallOptions(opts)...)
+func (c *client) CancelProcessInstance(ctx context.Context, key string, opts ...foptions.FacadeOption) (CancelResponse, error) {
+	resp, err := c.piApi.CancelProcessInstance(ctx, key, foptions.MapFacadeOptionsToCallOptions(opts)...)
 	if err != nil {
 		return CancelResponse{}, ferrors.FromDomain(err)
 	}
 	return CancelResponse{StatusCode: resp.StatusCode, Status: resp.Status}, nil
 }
 
-func (c *client) GetDirectChildrenOfProcessInstance(ctx context.Context, key string, opts ...options.FacadeOption) (ProcessInstances, error) {
-	children, err := c.piApi.GetDirectChildrenOfProcessInstance(ctx, key, options.MapFacadeOptionsToCallOptions(opts)...)
+func (c *client) GetDirectChildrenOfProcessInstance(ctx context.Context, key string, opts ...foptions.FacadeOption) (ProcessInstances, error) {
+	children, err := c.piApi.GetDirectChildrenOfProcessInstance(ctx, key, foptions.MapFacadeOptionsToCallOptions(opts)...)
 	if err != nil {
 		return ProcessInstances{}, ferrors.FromDomain(err)
 	}
 	return fromDomainProcessInstances(children), nil
 }
 
-func (c *client) FilterProcessInstanceWithOrphanParent(ctx context.Context, items []ProcessInstance, opts ...options.FacadeOption) ([]ProcessInstance, error) {
+func (c *client) FilterProcessInstanceWithOrphanParent(ctx context.Context, items []ProcessInstance, opts ...foptions.FacadeOption) ([]ProcessInstance, error) {
 	in := toolx.MapSlice(items, toDomainProcessInstance)
-	out, err := c.piApi.FilterProcessInstanceWithOrphanParent(ctx, in, options.MapFacadeOptionsToCallOptions(opts)...)
+	out, err := c.piApi.FilterProcessInstanceWithOrphanParent(ctx, in, foptions.MapFacadeOptionsToCallOptions(opts)...)
 	if err != nil {
 		return nil, ferrors.FromDomain(err)
 	}
 	return toolx.MapSlice(out, fromDomainProcessInstance), nil
 }
 
-func (c *client) DeleteProcessInstance(ctx context.Context, key string, opts ...options.FacadeOption) error {
-	_, err := c.piApi.DeleteProcessInstance(ctx, key, options.MapFacadeOptionsToCallOptions(opts)...)
+func (c *client) DeleteProcessInstance(ctx context.Context, key string, opts ...foptions.FacadeOption) error {
+	_, err := c.piApi.DeleteProcessInstance(ctx, key, foptions.MapFacadeOptionsToCallOptions(opts)...)
 	if err != nil {
 		return ferrors.FromDomain(err)
 	}
 	return nil
 }
 
-func (c *client) WaitForProcessInstanceState(ctx context.Context, key string, desired States, opts ...options.FacadeOption) (State, error) {
-	got, _, err := c.piApi.WaitForProcessInstanceState(ctx, key, toolx.MapSlice(desired, func(s State) d.State { return d.State(s) }), options.MapFacadeOptionsToCallOptions(opts)...)
+func (c *client) WaitForProcessInstanceState(ctx context.Context, key string, desired States, opts ...foptions.FacadeOption) (State, error) {
+	got, _, err := c.piApi.WaitForProcessInstanceState(ctx, key, toolx.MapSlice(desired, func(s State) d.State { return d.State(s) }), foptions.MapFacadeOptionsToCallOptions(opts)...)
 	return State(got), ferrors.FromDomain(err)
 }

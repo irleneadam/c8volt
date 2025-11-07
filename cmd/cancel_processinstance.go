@@ -8,17 +8,16 @@ import (
 )
 
 var (
-	flagCancelPIKey       string
+	flagCancelPIKeys      []string
 	flagCancelPIWithForce bool
+
+	flagCancelPIWorkers  int
+	flagCancelPIFailFast bool
 )
 
 var cancelProcessInstanceCmd = &cobra.Command{
-	Use:   "process-instance",
-	Short: "Cancel a process instance by its key and wait for the cancellation to complete",
-	Long: `Cancel a process instance by its key and wait for the cancellation to complete.
-If the process instance is a child instance, use --force flag to cancel
-the root process instance including all its child instances.
-You can use the --no-wait flag to skip waiting for the cancellation to complete.`,
+	Use:     "process-instance",
+	Short:   "Cancel process instance(s) by key(s) and wait for the cancellation to complete",
 	Aliases: []string{"pi"},
 	Run: func(cmd *cobra.Command, args []string) {
 		cli, log, cfg, err := NewCli(cmd)
@@ -26,9 +25,24 @@ You can use the --no-wait flag to skip waiting for the cancellation to complete.
 			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("initializing client: %w", err))
 		}
 
-		_, err = cli.CancelProcessInstance(cmd.Context(), flagCancelPIKey, collectOptions()...)
+		var keys []string
+		switch {
+		case len(flagCancelPIKeys) > 0:
+			keys = flagCancelPIKeys
+		default:
+			searchFilterOpts := populatePISearchFilterOpts()
+			pisr, err := cli.SearchProcessInstances(cmd.Context(), searchFilterOpts, maxPISearchSize)
+			if err != nil {
+				ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("error fetching process instances: %w", err))
+			}
+			keys = make([]string, 0, len(pisr.Items))
+			for _, pi := range pisr.Items {
+				keys = append(keys, pi.Key)
+			}
+		}
+		_, err = cli.CancelProcessInstances(cmd.Context(), keys, flagCancelPIWorkers, flagCancelPIFailFast, collectOptions()...)
 		if err != nil {
-			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("cancelling process instance: %w", err))
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("cancelling process instance(s): %w", err))
 		}
 	},
 }
@@ -36,9 +50,17 @@ You can use the --no-wait flag to skip waiting for the cancellation to complete.
 func init() {
 	cancelCmd.AddCommand(cancelProcessInstanceCmd)
 
-	cancelProcessInstanceCmd.Flags().BoolVar(&flagCancelNoWait, "no-wait", false, "skip waiting for the cancellation to be fully processed (no status checks)")
-	cancelProcessInstanceCmd.Flags().BoolVar(&flagCancelNoStateCheck, "no-state-check", false, "skip checking the current state of the process instance before cancelling it")
-	cancelProcessInstanceCmd.Flags().StringVarP(&flagCancelPIKey, "key", "k", "", "process instance key to cancel")
-	_ = cancelProcessInstanceCmd.MarkFlagRequired("key")
-	cancelProcessInstanceCmd.Flags().BoolVar(&flagCancelPIWithForce, "force", false, "force cancellation of the root process instance if a process instance is a child, including all its child instances")
+	fs := cancelProcessInstanceCmd.Flags()
+	fs.BoolVar(&flagCancelNoWait, "no-wait", false, "skip waiting for the cancellation to be fully processed (no status checks)")
+	fs.BoolVar(&flagCancelNoStateCheck, "no-state-check", false, "skip checking the current state of the process instance before cancelling it")
+	fs.StringSliceVarP(&flagCancelPIKeys, "key", "k", nil, "process instance key(s) to cancel")
+	fs.BoolVar(&flagCancelPIWithForce, "force", false, "force cancellation of the root process instance if a process instance is a child, including all its child instances")
+
+	fs.IntVarP(&flagCancelPIWorkers, "workers", "w", 0, "Maximum concurrent workers when --count > 1 (default: min(count, GOMAXPROCS))")
+	fs.BoolVar(&flagCancelPIFailFast, "fail-fast", false, "Stop scheduling new instances after the first error")
+
+	// flags from get process instance for filtering
+	fs.StringVarP(&flagGetPIBpmnProcessID, "bpmn-process-id", "b", "", "BPMN process ID to filter process instances")
+	fs.Int32Var(&flagGetPIProcessVersion, "pd-version", 0, "process definition version")
+	fs.StringVar(&flagGetPIProcessVersionTag, "pd-version-tag", "", "process definition version tag")
 }

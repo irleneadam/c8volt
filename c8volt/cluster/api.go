@@ -3,11 +3,11 @@ package cluster
 import (
 	"context"
 
-	"github.com/grafvonb/c8volt/c8volt/options"
+	"github.com/grafvonb/c8volt/c8volt/foptions"
 )
 
 type API interface {
-	GetClusterTopology(ctx context.Context, opts ...options.FacadeOption) (Topology, error)
+	GetClusterTopology(ctx context.Context, opts ...foptions.FacadeOption) (Topology, error)
 }
 
 var _ API = (*client)(nil)

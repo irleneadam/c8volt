@@ -1,4 +1,4 @@
-package options
+package foptions
 
 import "github.com/grafvonb/c8volt/internal/services"
 

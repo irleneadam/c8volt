@@ -1,20 +1,20 @@
 package cmd
 
-import "github.com/grafvonb/c8volt/c8volt/options"
+import "github.com/grafvonb/c8volt/c8volt/foptions"
 
-func collectOptions() []options.FacadeOption {
-	var opts []options.FacadeOption
+func collectOptions() []foptions.FacadeOption {
+	var opts []foptions.FacadeOption
 	if flagCancelNoWait || flagRunNoWait {
-		opts = append(opts, options.WithNoWait())
+		opts = append(opts, foptions.WithNoWait())
 	}
 	if flagCancelNoStateCheck {
-		opts = append(opts, options.WithNoStateCheck())
+		opts = append(opts, foptions.WithNoStateCheck())
 	}
 	if flagDeletePIWithForce || flagCancelPIWithForce {
-		opts = append(opts, options.WithForce())
+		opts = append(opts, foptions.WithForce())
 	}
 	if flagDeployPDWithRun {
-		opts = append(opts, options.WithRun())
+		opts = append(opts, foptions.WithRun())
 	}
 	return opts
 }

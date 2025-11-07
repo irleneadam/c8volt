@@ -5,7 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/grafvonb/c8volt/c8volt/ferrors"
-	"github.com/grafvonb/c8volt/c8volt/options"
+	"github.com/grafvonb/c8volt/c8volt/foptions"
 	csvc "github.com/grafvonb/c8volt/internal/services/cluster"
 )
 
@@ -16,8 +16,8 @@ type client struct {
 
 func New(api csvc.API, log *slog.Logger) API { return &client{api: api, log: log} }
 
-func (c *client) GetClusterTopology(ctx context.Context, opts ...options.FacadeOption) (Topology, error) {
-	t, err := c.api.GetClusterTopology(ctx, options.MapFacadeOptionsToCallOptions(opts)...)
+func (c *client) GetClusterTopology(ctx context.Context, opts ...foptions.FacadeOption) (Topology, error) {
+	t, err := c.api.GetClusterTopology(ctx, foptions.MapFacadeOptionsToCallOptions(opts)...)
 	if err != nil {
 		return Topology{}, ferrors.FromDomain(err)
 	}
