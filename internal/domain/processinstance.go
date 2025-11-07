@@ -1,9 +1,5 @@
 package domain
 
-import (
-	"fmt"
-)
-
 type ProcessInstance struct {
 	BpmnProcessId             string
 	EndDate                   string
@@ -34,13 +30,9 @@ type CancelResponse struct {
 	Status     string
 }
 
-type ChangeStatus struct {
-	Deleted int64
-	Message string
-}
-
-func (c ChangeStatus) String() string {
-	return fmt.Sprintf("deleted: %d, message: %s", c.Deleted, c.Message)
+type DeleteResponse struct {
+	StatusCode int
+	Status     string
 }
 
 type ProcessInstanceData struct {

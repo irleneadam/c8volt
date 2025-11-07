@@ -98,8 +98,8 @@ func init() {
 	fs := getProcessInstanceCmd.Flags()
 	fs.StringVarP(&flagGetPIKey, "key", "k", "", "process instance key to fetch")
 	fs.StringVarP(&flagGetPIBpmnProcessID, "bpmn-process-id", "b", "", "BPMN process ID to filter process instances")
-	fs.Int32VarP(&flagGetPIProcessVersion, "process-version", "v", 0, "process definition version")
-	fs.StringVar(&flagGetPIProcessVersionTag, "process-version-tag", "", "process definition version tag")
+	fs.Int32Var(&flagGetPIProcessVersion, "pd-version", 0, "process definition version")
+	fs.StringVar(&flagGetPIProcessVersionTag, "pd-version-tag", "", "process definition version tag")
 
 	// filtering options
 	fs.StringVar(&flagGetPIParentKey, "parent-key", "", "parent process instance key to filter process instances")

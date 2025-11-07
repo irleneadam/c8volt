@@ -183,7 +183,7 @@ func (s *Service) CancelProcessInstance(ctx context.Context, key string, opts ..
 				s.log.Info(fmt.Sprintf("force flag is set, cancelling root process instance with key %s and all its child processes", rootPIKey))
 				return s.CancelProcessInstance(ctx, rootPIKey, opts...)
 			} else {
-				s.log.Info(fmt.Sprintf("you can use the --force flag to cancel the root process instance with key %s and all its child processes", rootPIKey))
+				s.log.Info(fmt.Sprintf("use --force flag to cancel the root process instance with key %s and all its child processes", rootPIKey))
 				return d.CancelResponse{StatusCode: http.StatusConflict}, nil
 			}
 		}
@@ -234,11 +234,11 @@ func (s *Service) GetProcessInstanceStateByKey(ctx context.Context, key string, 
 	return st, fromProcessInstanceResult(*pi.JSON200), nil
 }
 
-func (s *Service) DeleteProcessInstance(ctx context.Context, key string, opts ...services.CallOption) (d.ChangeStatus, error) {
+func (s *Service) DeleteProcessInstance(ctx context.Context, key string, opts ...services.CallOption) (d.DeleteResponse, error) {
 	cCfg := services.ApplyCallOptions(opts)
 	oldKey, err := toolx.StringToInt64(key)
 	if err != nil {
-		return d.ChangeStatus{}, fmt.Errorf("parsing process instance key %q to int64: %w", key, err)
+		return d.DeleteResponse{}, fmt.Errorf("parsing process instance key %q to int64: %w", key, err)
 	}
 	s.log.Debug(fmt.Sprintf("deleting process instance with key %d", oldKey))
 	resp, err := s.co.DeleteProcessInstanceAndAllDependantDataByKeyWithResponse(ctx, oldKey)
@@ -249,28 +249,28 @@ func (s *Service) DeleteProcessInstance(ctx context.Context, key string, opts ..
 			s.log.Info(fmt.Sprintf("process instance with key %s not in one of terminated states; cancelling it first", key))
 			_, err = s.CancelProcessInstance(ctx, key, opts...)
 			if err != nil {
-				return d.ChangeStatus{}, fmt.Errorf("error cancelling process instance with key %s: %w", key, err)
+				return d.DeleteResponse{}, fmt.Errorf("error cancelling process instance with key %s: %w", key, err)
 			}
 			s.log.Info(fmt.Sprintf("waiting for process instance with key %s to be cancelled by workflow engine...", key))
 			states := []d.State{d.StateCanceled, d.StateTerminated}
 			if _, _, err = waiter.WaitForProcessInstanceState(ctx, s, s.cfg, s.log, key, states, opts...); err != nil {
-				return d.ChangeStatus{}, fmt.Errorf("waiting for canceled state failed for %s: %w", key, err)
+				return d.DeleteResponse{}, fmt.Errorf("waiting for canceled state failed for %s: %w", key, err)
 			}
 			s.log.Info(fmt.Sprintf("retrying deletion of process instance with key %d", oldKey))
 			resp, err = s.co.DeleteProcessInstanceAndAllDependantDataByKeyWithResponse(ctx, oldKey)
+		} else {
+			s.log.Info(fmt.Sprintf("cannot delete, process instance %s is not in one of terminated states; use --force flag to cancel and then delete the process instance", key))
+			return d.DeleteResponse{StatusCode: http.StatusConflict}, nil
 		}
 	}
 	if err != nil {
-		return d.ChangeStatus{}, err
+		return d.DeleteResponse{}, err
 	}
 	if err = httpc.HttpStatusErr(resp.HTTPResponse, resp.Body); err != nil {
-		return d.ChangeStatus{}, err
+		return d.DeleteResponse{}, err
 	}
 	s.log.Info(fmt.Sprintf("process instance with key %s was successfully deleted", key))
-	return d.ChangeStatus{
-		Deleted: toolx.Deref(resp.JSON200.Deleted, 0),
-		Message: toolx.Deref(resp.JSON200.Message, ""),
-	}, nil
+	return d.DeleteResponse{StatusCode: resp.StatusCode()}, nil
 }
 
 func (s *Service) GetProcessInstanceByKey(ctx context.Context, key string, opts ...services.CallOption) (d.ProcessInstance, error) {

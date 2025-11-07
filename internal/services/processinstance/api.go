@@ -16,7 +16,7 @@ type API interface {
 	FilterProcessInstanceWithOrphanParent(ctx context.Context, items []d.ProcessInstance, opts ...services.CallOption) ([]d.ProcessInstance, error)
 	SearchForProcessInstances(ctx context.Context, filter d.ProcessInstanceSearchFilterOpts, size int32, opts ...services.CallOption) ([]d.ProcessInstance, error)
 	CancelProcessInstance(ctx context.Context, key string, opts ...services.CallOption) (d.CancelResponse, error)
-	DeleteProcessInstance(ctx context.Context, key string, opts ...services.CallOption) (d.ChangeStatus, error)
+	DeleteProcessInstance(ctx context.Context, key string, opts ...services.CallOption) (d.DeleteResponse, error)
 	GetProcessInstanceStateByKey(ctx context.Context, key string, opts ...services.CallOption) (d.State, d.ProcessInstance, error)
 	WaitForProcessInstanceState(ctx context.Context, key string, desired d.States, opts ...services.CallOption) (d.State, d.ProcessInstance, error)
 	Ancestry(ctx context.Context, startKey string, opts ...services.CallOption) (rootKey string, path []string, chain map[string]d.ProcessInstance, err error)

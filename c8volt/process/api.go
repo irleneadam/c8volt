@@ -21,7 +21,7 @@ type API interface {
 	CancelProcessInstance(ctx context.Context, key string, opts ...options.FacadeOption) (CancelResponse, error)
 	GetDirectChildrenOfProcessInstance(ctx context.Context, key string, opts ...options.FacadeOption) (ProcessInstances, error)
 	FilterProcessInstanceWithOrphanParent(ctx context.Context, items []ProcessInstance, opts ...options.FacadeOption) ([]ProcessInstance, error)
-	DeleteProcessInstance(ctx context.Context, key string, opts ...options.FacadeOption) (ChangeStatus, error)
+	DeleteProcessInstance(ctx context.Context, key string, opts ...options.FacadeOption) error
 	WaitForProcessInstanceState(ctx context.Context, key string, desired States, opts ...options.FacadeOption) (State, error)
 	Walker
 

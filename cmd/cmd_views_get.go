@@ -29,7 +29,7 @@ func oneLinePI(it process.ProcessInstance) string {
 		vTag = "/" + it.ProcessVersionTag
 	}
 	return fmt.Sprintf(
-		"%-16s %s %s v%d%s %s s:%s %s%s i:%t",
+		"%-16s %s %s v%d%s %s s:%s%s%s i:%t",
 		it.Key, it.TenantId, it.BpmnProcessId, it.ProcessVersion, vTag,
 		it.State, it.StartDate, eTag, pTag, it.Incident,
 	)

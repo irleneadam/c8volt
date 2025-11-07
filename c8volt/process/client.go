@@ -135,12 +135,12 @@ func (c *client) FilterProcessInstanceWithOrphanParent(ctx context.Context, item
 	return toolx.MapSlice(out, fromDomainProcessInstance), nil
 }
 
-func (c *client) DeleteProcessInstance(ctx context.Context, key string, opts ...options.FacadeOption) (ChangeStatus, error) {
-	s, err := c.piApi.DeleteProcessInstance(ctx, key, options.MapFacadeOptionsToCallOptions(opts)...)
+func (c *client) DeleteProcessInstance(ctx context.Context, key string, opts ...options.FacadeOption) error {
+	_, err := c.piApi.DeleteProcessInstance(ctx, key, options.MapFacadeOptionsToCallOptions(opts)...)
 	if err != nil {
-		return ChangeStatus{}, ferrors.FromDomain(err)
+		return ferrors.FromDomain(err)
 	}
-	return ChangeStatus{Deleted: s.Deleted, Message: s.Message}, nil
+	return nil
 }
 
 func (c *client) WaitForProcessInstanceState(ctx context.Context, key string, desired States, opts ...options.FacadeOption) (State, error) {

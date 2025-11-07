@@ -136,18 +136,18 @@ processdefinitions/C88_SimpleUserTaskWithIncidentProcess.bpmn
 Deploy three embedded BPMN models to Camunda 8 that build a parent-child process instance tree:
 ```bash
 $ ./c8volt embed deploy -f processdefinitions/C88_MultipleSubProcessesParentProcess.bpmn,processdefinitions/C88_SimpleParentProcess.bpmn,processdefinitions/C88_SimpleUserTaskProcess.bpmn
-found: 3
 2251799813685772 <default> C88_MultipleSubProcessesParentProcess v1 vprocessdefinitions/C88_MultipleSubProcessesParentProcess.bpmn (2251799813685771)
 2251799813685773 <default> C88_SimpleParentProcess v1 vprocessdefinitions/C88_SimpleParentProcess.bpmn (2251799813685771)
 2251799813685774 <default> C88_SimpleUserTask_Process v1 vprocessdefinitions/C88_SimpleUserTaskProcess.bpmn (2251799813685771)
+found: 3
 ```
 Check that the models are deployed:
 ```bash
 $ ./c8volt get pd
-found: 3
 2251799813685772 <default> C88_MultipleSubProcessesParentProcess v1/v1.0.0
 2251799813685773 <default> C88_SimpleParentProcess v1/v1.0.0
 2251799813685774 <default> C88_SimpleUserTask_Process v1/v1.0.0
+found: 3
 ```
 And run a process instance using standard run command:
 ```bash
@@ -162,8 +162,8 @@ INFO exported 1 embedded resource(s) to "exported_models"
 Modify it with Camunda Modeler or any text editor and deploy it back with "normal" deployment command:
 ```bash
 $ ./c8volt deploy pd -f ./exported_models/processdefinitions/C88_SimpleParentProcess.bpmn
-found: 1
 2251799813906559 <default> C88_SimpleParentProcess v2 vC88_SimpleParentProcess.bpmn (2251799813906558)
+found: 1
 ```
 And run a process instance of the modified model:
 ```bash
@@ -188,7 +188,6 @@ You can switch off the waiting mechanism using the `--no-wait` flag.
 First get the deployed process definitions:
 ```bash
 $ ./c8volt get pd
-found: 11
 2251799814192477 <default> C88_DoubleUserTask_Process v1/v1.0.0
 2251799814192481 <default> C88_MultipleSubProcessesParentProcess v2/v1.0.0
 2251799813685772 <default> C88_MultipleSubProcessesParentProcess v1/v1.0.0
@@ -200,6 +199,7 @@ found: 11
 2251799813885946 <default> C88_SimpleUserTask_Process v3/v1.0.2
 2251799813885862 <default> C88_SimpleUserTask_Process v2/v1.0.1
 2251799813685774 <default> C88_SimpleUserTask_Process v1/v1.0.0
+found: 11
 ```
 Start a single process instance of `C88_SimpleUserTask_Process` by its BPMN process ID and wait until it is active:
 ```bash
@@ -250,16 +250,16 @@ Assuming you have following process instance tree (look at the sections above ho
 ```bash
 $ ./c8volt get pi
 found: 4
-2251799813686374 <default> C88_MultipleSubProcessesParentProcess v1/v1.0.0 ACTIVE s:2025-11-02T12:47:25.352+0000  p:<root> i:false
-2251799813686383 <default> C88_SimpleUserTask_Process v1/v1.0.0 ACTIVE s:2025-11-02T12:47:25.352+0000  p:2251799813686374 i:false
-2251799813686384 <default> C88_SimpleParentProcess v1/v1.0.0 ACTIVE s:2025-11-02T12:47:25.352+0000  p:2251799813686374 i:false
-2251799813686392 <default> C88_SimpleUserTask_Process v1/v1.0.0 ACTIVE s:2025-11-02T12:47:25.352+0000  p:2251799813686384 i:false
+2251799813686374 <default> C88_MultipleSubProcessesParentProcess v1/v1.0.0 ACTIVE s:2025-11-02T12:47:25.352+0000 p:<root> i:false
+2251799813686383 <default> C88_SimpleUserTask_Process v1/v1.0.0 ACTIVE s:2025-11-02T12:47:25.352+0000 p:2251799813686374 i:false
+2251799813686384 <default> C88_SimpleParentProcess v1/v1.0.0 ACTIVE s:2025-11-02T12:47:25.352+0000 p:2251799813686374 i:false
+2251799813686392 <default> C88_SimpleUserTask_Process v1/v1.0.0 ACTIVE s:2025-11-02T12:47:25.352+0000 p:2251799813686384 i:false
 ```
 Cancel the process instance `2251799813686384` (which is a child of `2251799813686374` and parent of `2251799813686392`):
 ```bash
 $ ./c8volt cancel pi --key 2251799813686384
 INFO cannot cancel, process instance with key 2251799813686384 is a child process of a root parent with key 2251799813686374
-INFO you can use the --force flag to cancel the root process instance with key 2251799813686374 and all its child processes
+INFO use --force flag to cancel the root process instance with key 2251799813686374 and all its child processes
 ```
 You cannot cancel a child process instance directly. It is as standard behavior of Camunda 8.
 **c8volt** has a flag `--force` to find the root ancestor process instance and cancel it instead, which also cancels all its child process instances:
@@ -277,10 +277,10 @@ Standard behavior of **c8volt** is to wait until the process instance reaches th
 You can check it with a special `walk` command that traverses the process instance tree. To get the whole tree use `--mode family`:
 ```bash
 $ ./c8volt walk pi --key 2251799813686384 --mode family
-2251799813686374 <default> C88_MultipleSubProcessesParentProcess v1/v1.0.0 TERMINATED s:2025-11-02T12:47:25.352Z  e:2025-11-02T12:53:43.594Z p:<root> i:false ⇄ 
-2251799813686383 <default> C88_SimpleUserTask_Process v1/v1.0.0 CANCELED s:2025-11-02T12:47:25.352+0000  e:2025-11-02T12:53:43.594+0000 p:2251799813686374 i:false ⇄ 
-2251799813686384 <default> C88_SimpleParentProcess v1/v1.0.0 CANCELED s:2025-11-02T12:47:25.352+0000  e:2025-11-02T12:53:43.594+0000 p:2251799813686374 i:false ⇄ 
-2251799813686392 <default> C88_SimpleUserTask_Process v1/v1.0.0 CANCELED s:2025-11-02T12:47:25.352+0000  e:2025-11-02T12:53:43.594+0000 p:2251799813686384 i:false
+2251799813686374 <default> C88_MultipleSubProcessesParentProcess v1/v1.0.0 TERMINATED s:2025-11-02T12:47:25.352Z e:2025-11-02T12:53:43.594Z p:<root> i:false ⇄ 
+2251799813686383 <default> C88_SimpleUserTask_Process v1/v1.0.0 CANCELED s:2025-11-02T12:47:25.352+0000 e:2025-11-02T12:53:43.594+0000 p:2251799813686374 i:false ⇄ 
+2251799813686384 <default> C88_SimpleParentProcess v1/v1.0.0 CANCELED s:2025-11-02T12:47:25.352+0000 e:2025-11-02T12:53:43.594+0000 p:2251799813686374 i:false ⇄ 
+2251799813686392 <default> C88_SimpleUserTask_Process v1/v1.0.0 CANCELED s:2025-11-02T12:47:25.352+0000 e:2025-11-02T12:53:43.594+0000 p:2251799813686384 i:false
 ```
 
 ### Deletion

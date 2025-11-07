@@ -16,7 +16,7 @@ var cancelProcessInstanceCmd = &cobra.Command{
 	Use:   "process-instance",
 	Short: "Cancel a process instance by its key and wait for the cancellation to complete",
 	Long: `Cancel a process instance by its key and wait for the cancellation to complete.
-If the process instance is a child instance, use the --force flag to cancel
+If the process instance is a child instance, use --force flag to cancel
 the root process instance including all its child instances.
 You can use the --no-wait flag to skip waiting for the cancellation to complete.`,
 	Aliases: []string{"pi"},

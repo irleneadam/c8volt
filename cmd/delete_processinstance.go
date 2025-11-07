@@ -21,11 +21,9 @@ var deleteProcessInstanceCmd = &cobra.Command{
 		if err != nil {
 			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, err)
 		}
-		_, err = cli.DeleteProcessInstance(cmd.Context(), flagDeletePIKey, collectOptions()...)
-		if err != nil {
+		if err = cli.DeleteProcessInstance(cmd.Context(), flagDeletePIKey, collectOptions()...); err != nil {
 			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("deleting process instance with key %s: %w", flagDeletePIKey, err))
 		}
-
 	},
 }
 

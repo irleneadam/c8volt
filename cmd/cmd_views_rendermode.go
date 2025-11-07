@@ -69,17 +69,17 @@ func listOrJSON[Resp any, Item any](
 	}
 	switch mode {
 	case ModeJSON:
-		cmd.Println("found:", len(items))
 		cmd.Println(toolx.ToJSONString(resp))
+		cmd.Println("found:", len(items))
 	case ModeKeysOnly:
 		for _, it := range items {
 			cmd.Println(keyOf(it))
 		}
 	default: // ModeOneLine
-		cmd.Println("found:", len(items))
 		for _, it := range items {
 			cmd.Println(strings.TrimSpace(oneLine(it)))
 		}
+		cmd.Println("found:", len(items))
 	}
 	return nil
 }
