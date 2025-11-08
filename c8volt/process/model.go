@@ -64,9 +64,28 @@ type ProcessInstanceSearchFilterOpts struct {
 	ParentKey         string
 }
 
-type CancelResponse struct {
-	StatusCode int
-	Status     string
+type CancelReport struct {
+	Key        string `json:"key,omitempty"`
+	Ok         bool   `json:"ok,omitempty"`
+	StatusCode int    `json:"statusCode,omitempty"`
+	Status     string `json:"status,omitempty"`
+}
+
+type CancelReports struct {
+	Items []CancelReport `json:"items,omitempty"`
+}
+
+func (c CancelReports) Totals() (total int, oks int, noks int) {
+	count := 0
+	for _, r := range c.Items {
+		if r.Ok {
+			count++
+		}
+	}
+	total = len(c.Items)
+	oks = count
+	noks = total - oks
+	return
 }
 
 type ChangeStatus struct {

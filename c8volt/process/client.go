@@ -110,12 +110,12 @@ func (c *client) SearchProcessInstances(ctx context.Context, filter ProcessInsta
 	return fromDomainProcessInstances(pis), nil
 }
 
-func (c *client) CancelProcessInstance(ctx context.Context, key string, opts ...foptions.FacadeOption) (CancelResponse, error) {
+func (c *client) CancelProcessInstance(ctx context.Context, key string, opts ...foptions.FacadeOption) (CancelReport, error) {
 	resp, err := c.piApi.CancelProcessInstance(ctx, key, foptions.MapFacadeOptionsToCallOptions(opts)...)
 	if err != nil {
-		return CancelResponse{}, ferrors.FromDomain(err)
+		return CancelReport{Key: key, Ok: false, StatusCode: resp.StatusCode, Status: resp.Status}, ferrors.FromDomain(err)
 	}
-	return CancelResponse{StatusCode: resp.StatusCode, Status: resp.Status}, nil
+	return CancelReport{Key: key, Ok: true, StatusCode: resp.StatusCode, Status: resp.Status}, nil
 }
 
 func (c *client) GetDirectChildrenOfProcessInstance(ctx context.Context, key string, opts ...foptions.FacadeOption) (ProcessInstances, error) {

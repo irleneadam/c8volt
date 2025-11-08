@@ -24,6 +24,9 @@ var cancelProcessInstanceCmd = &cobra.Command{
 		if err != nil {
 			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("initializing client: %w", err))
 		}
+		if cmd.Flags().Changed("workers") && flagCancelPIWorkers < 1 {
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("--workers must be positive integer"))
+		}
 
 		var keys []string
 		switch {

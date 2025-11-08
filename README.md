@@ -216,7 +216,7 @@ INFO process instance 2251799814278567 succesfully created (start registered at 
 Start a version 3 of `C88_SimpleParentProcess` by its process definition ID without waiting for it to be active:
 ```bash
 $ ./c8volt --config config-c8run-v88.yaml run pi --pd-id=2251799813885946 --no-wait
-INFO process instance creation with the key 2251799814279025 requested at  (run not confirmed, as no-wait is set) using process definition id 2251799813885946, C88_SimpleUserTask_Process, v3, tenant: <default>
+INFO process instance creation with the key 2251799814279025 requested at 2025-11-07T15:04:37.306Z (run not confirmed, as no-wait is set) using process definition id 2251799813885946, C88_SimpleUserTask_Process, v3, tenant: <default>
 ```
 Start 5 process instances of `C88_DoubleUserTask_Process` concurrently using 3 workers and wait until they are active:
 ```bash

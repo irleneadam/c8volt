@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"runtime"
 
 	"github.com/grafvonb/c8volt/c8volt/ferrors"
 	"github.com/grafvonb/c8volt/c8volt/foptions"
@@ -28,6 +27,9 @@ var runProcessInstanceCmd = &cobra.Command{
 		cli, log, cfg, err := NewCli(cmd)
 		if err != nil {
 			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, err)
+		}
+		if cmd.Flags().Changed("count") && flagRunPICount < 1 || cmd.Flags().Changed("workers") && flagRunPIWorkers < 1 {
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("--count and --workers must be positive integers"))
 		}
 		var datas []process.ProcessInstanceData
 		var contextForErr string
@@ -83,19 +85,7 @@ var runProcessInstanceCmd = &cobra.Command{
 			ferrors.HandleAndExit(log, cfg.App.NoErrCodes,
 				fmt.Errorf("--count requires exactly one target definition; got %d", len(datas)))
 		}
-
-		workers := flagRunPIWorkers
-		if workers <= 0 {
-			workers = flagRunPICount
-			if gp := runtime.GOMAXPROCS(0); gp < workers {
-				workers = gp
-			}
-		}
-		if workers > flagRunPICount {
-			workers = flagRunPICount
-		}
-
-		_, err = cli.CreateNProcessInstances(cmd.Context(), datas[0], flagRunPICount, workers, fopts...)
+		_, err = cli.CreateNProcessInstances(cmd.Context(), datas[0], flagRunPICount, flagRunPIWorkers, fopts...)
 		if err != nil {
 			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("running %d process instances for %s: %w", flagRunPICount, contextForErr, err))
 		}
