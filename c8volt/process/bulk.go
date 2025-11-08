@@ -15,13 +15,18 @@ func (c *client) CreateNProcessInstances(ctx context.Context, data ProcessInstan
 	cCfg := foptions.ApplyFacadeOptions(opts)
 
 	workers := determineNoOfWorkers(n, parallel)
-	return fpool.ExecuteNTimes[ProcessInstance](ctx, n, workers, cCfg.FailFast, func(ctx context.Context, _ int) (ProcessInstance, error) {
+	c.log.Info(fmt.Sprintf("creating %d process instances using %d workers", n, workers))
+	pics, err := fpool.ExecuteNTimes[ProcessInstance](ctx, n, workers, cCfg.FailFast, func(ctx context.Context, _ int) (ProcessInstance, error) {
 		pic, err := c.piApi.CreateProcessInstance(ctx, toProcessInstanceData(data), foptions.MapFacadeOptionsToCallOptions(opts)...)
 		if err != nil {
 			return ProcessInstance{}, ferrors.FromDomain(err)
 		}
 		return fromDomainProcessInstanceCreation(pic), nil
 	})
+	if !cCfg.NoWait {
+		c.log.Info(fmt.Sprintf("creation of %d process instances completed", n))
+	}
+	return pics, err
 }
 
 func (c *client) CancelProcessInstances(ctx context.Context, keys []string, parallel int, failFast bool, opts ...foptions.FacadeOption) (CancelReports, error) {

@@ -58,6 +58,9 @@ var cancelProcessInstanceCmd = &cobra.Command{
 				keys = append(keys, pi.Key)
 			}
 		}
+		if err := confirmCmdOrAbort(flagCmdAutoConfirm, fmt.Sprintf("Are you sure you want to cancel %d process instance(s)?", len(keys))); err != nil {
+			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, err)
+		}
 		_, err = cli.CancelProcessInstances(cmd.Context(), keys, flagCancelPIWorkers, flagCancelPIFailFast, collectOptions()...)
 		if err != nil {
 			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("cancelling process instance(s): %w", err))

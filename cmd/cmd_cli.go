@@ -1,14 +1,21 @@
 package cmd
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
 	"log/slog"
+	"os"
+	"strings"
 
 	"github.com/grafvonb/c8volt/c8volt"
 	"github.com/grafvonb/c8volt/config"
 	"github.com/grafvonb/c8volt/toolx/logging"
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 )
+
+var ErrCmdAborted = errors.New("aborted by user")
 
 func NewCli(cmd *cobra.Command) (c8volt.API, *slog.Logger, *config.Config, error) {
 	log, _ := logging.FromContext(cmd.Context())
@@ -25,4 +32,21 @@ func NewCli(cmd *cobra.Command) (c8volt.API, *slog.Logger, *config.Config, error
 		return nil, nil, nil, fmt.Errorf("error creating c8volt client: %w", err)
 	}
 	return cli, log, svcs.Config, nil
+}
+
+func confirmCmdOrAbort(autoConfirm bool, prompt string) error {
+	if autoConfirm || !term.IsTerminal(int(os.Stdin.Fd())) {
+		return nil
+	}
+	fmt.Printf("%s [y/N]: ", prompt)
+	in := bufio.NewScanner(os.Stdin)
+	if !in.Scan() {
+		return ErrCmdAborted
+	}
+	switch strings.ToLower(strings.TrimSpace(in.Text())) {
+	case "y", "yes":
+		return nil
+	default:
+		return ErrCmdAborted
+	}
 }

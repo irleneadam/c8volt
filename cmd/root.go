@@ -18,12 +18,13 @@ import (
 )
 
 var (
-	flagViewAsJson   bool
-	flagViewKeysOnly bool
-	flagQuiet        bool
-	flagVerbose      bool
-	flagDebug        bool
-	flagNoErrCodes   bool
+	flagViewAsJson     bool
+	flagViewKeysOnly   bool
+	flagQuiet          bool
+	flagVerbose        bool
+	flagDebug          bool
+	flagNoErrCodes     bool
+	flagCmdAutoConfirm bool
 )
 
 var rootCmd = &cobra.Command{
@@ -109,6 +110,7 @@ func Execute() {
 func init() {
 	pf := rootCmd.PersistentFlags()
 	pf.BoolVarP(&flagQuiet, "quiet", "q", false, "suppress all output, except errors, overrides --log-level")
+	pf.BoolVarP(&flagCmdAutoConfirm, "auto-confirm", "y", false, "auto-confirm prompts for non-interactive use")
 	pf.BoolVar(&flagVerbose, "verbose", false, "enable verbose output")
 	_ = rootCmd.PersistentFlags().MarkHidden("verbose") // not used currently
 	pf.BoolVar(&flagDebug, "debug", false, "enable debug logging, overwrites and is shorthand for --log-level=debug")
@@ -153,6 +155,7 @@ func initViper(v *viper.Viper, cmd *cobra.Command) error {
 	_ = v.BindPFlag("app.tenant", fs.Lookup("tenant"))
 	_ = v.BindPFlag("app.camunda_version", fs.Lookup("camunda-version"))
 	_ = v.BindPFlag("app.no_err_codes", fs.Lookup("no-err-codes"))
+	_ = v.BindPFlag("app.auto-confirm", fs.Lookup("auto-confirm"))
 
 	_ = v.BindPFlag("auth.mode", fs.Lookup("auth-mode"))
 	_ = v.BindPFlag("auth.oauth2.client_id", fs.Lookup("auth-oauth2-client-id"))
@@ -203,7 +206,7 @@ func initViper(v *viper.Viper, cmd *cobra.Command) error {
 
 func retrieveAndNormalizeConfig(v *viper.Viper) (*config.Config, error) {
 	var cfg config.Config
-	if err := v.UnmarshalExact(&cfg); err != nil {
+	if err := v.Unmarshal(&cfg); err != nil {
 		return nil, fmt.Errorf("unmarshal config: %w", err)
 	}
 	if err := cfg.Normalize(); err != nil {
