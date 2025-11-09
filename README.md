@@ -489,10 +489,6 @@ INFO cancelling 3 process instance(s) completed: 3 succeeded or already cancelle
 INFO deleting 1 process definitions completed: 1 succeeded, 0 failed
 ```
 
-### Walking Process Instance Trees
-
-TBD
-
 ### Scripting Support
 
 #### Error Codes
