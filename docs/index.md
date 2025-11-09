@@ -1,6 +1,6 @@
 <img src="./logo/c8volt_orange_black_bkg_white_400x152.png" alt="c8volt logo" style="border-radius: 5px;" />
 
-No, **c8volt** is different. Its design and development focus on operational effectiveness, ensuring that **done is done**.
+No, **[c8volt](https://github.com/grafvonb/c8volt)** is different. Its design and development focus on operational effectiveness, ensuring that **done is done**.
 There are plenty of operational tasks where you want to be sure that:
 
 * A process instance was started – is it really active and running?
@@ -70,7 +70,7 @@ $ ./c8volt walk pi --key 2251799813711967 --family
 2251799813711985 <default> C88_SimpleUserTask_Process v1/v1.0.0 CANCELED s:2025-11-08T22:21:09.617+0000 e:2025-11-09T08:14:00.681+0000 p:2251799813711977 i:false
 ```
 
-**DONE IS DONE!**
+**DONE IS DONE!** [https://github.com/grafvonb/c8volt](https://github.com/grafvonb/c8volt)
 
 ## Quick Start with c8volt
 
@@ -455,7 +455,7 @@ INFO deleting 1 process instances completed: 1 succeeded, 0 failed
 
 #### Deletion of Process Definitions
 
-TBD
+
 
 ### Walking Process Instance Trees
 
