@@ -10,9 +10,9 @@ import (
 var (
 	flagWalkKey          string
 	flagWalkMode         string
-	flagWalkModeFamily   string
-	flagWalkModeParent   string
-	flagWalkModeChildren string
+	flagWalkModeFamily   bool
+	flagWalkModeParent   bool
+	flagWalkModeChildren bool
 )
 
 const (
@@ -59,12 +59,18 @@ var walkProcessInstanceCmd = &cobra.Command{
 				view: familyView,
 			},
 		}
-
+		switch {
+		case flagWalkModeParent:
+			flagWalkMode = modeParent
+		case flagWalkModeChildren:
+			flagWalkMode = modeChildren
+		case flagWalkModeFamily:
+			flagWalkMode = modeFamily
+		}
 		w, ok := walkers[flagWalkMode]
 		if !ok {
 			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, fmt.Errorf("invalid --mode %q (must be %s, %s, or %s)", flagWalkMode, modeParent, modeChildren, modeFamily))
 		}
-
 		path, chain, err := w.fetch()
 		if err != nil {
 			ferrors.HandleAndExit(log, cfg.App.NoErrCodes, err)
@@ -83,6 +89,9 @@ func init() {
 	_ = walkProcessInstanceCmd.MarkFlagRequired("key")
 
 	fs.StringVar(&flagWalkMode, "mode", modeParent, "walk mode: parent, children, family")
+	fs.BoolVar(&flagWalkModeParent, "parent", false, "shorthand for --mode=parent")
+	fs.BoolVar(&flagWalkModeChildren, "children", false, "shorthand for --mode=children")
+	fs.BoolVar(&flagWalkModeFamily, "family", false, "shorthand for --mode=family")
 
 	// shell completion for --mode
 	_ = walkProcessInstanceCmd.RegisterFlagCompletionFunc("mode", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
