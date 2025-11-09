@@ -2,7 +2,7 @@
 
 # c8volt - Yet Another Camunda 8 CLI Tool?
 
-No, **c8volt** is different. Its design and development focus on operational effectiveness, ensuring that done is done.
+No, **c8volt** is different. Its design and development focus on operational effectiveness, ensuring that **done is done**.
 There are plenty of operational tasks where you want to be sure that:
 
 * A process instance was started – is it really active and running?
@@ -18,10 +18,65 @@ If some operation requires additional steps to reach the desired state, **c8volt
 * Traversing the process instance tree to perform operations like cancellation or deletion.
 
 **c8volt** focuses on real operational use cases while still providing the familiar CLI functionality such as standard CRUD commands on various resources.
- 
+
+Not already convinced? Here an example of powerful features of **c8volt** in action:
+```bash
+$ ./c8volt walk pi --key 2251799813711967 --family
+2251799813711967 <default> C88_MultipleSubProcessesParentProcess v1/v1.0.0 ACTIVE s:2025-11-08T22:21:09.617Z p:<root> i:false ⇄ 
+2251799813711976 <default> C88_SimpleUserTask_Process v1/v1.0.0 ACTIVE s:2025-11-08T22:21:09.617+0000 p:2251799813711967 i:false ⇄ 
+2251799813711977 <default> C88_SimpleParentProcess v2/v1.0.1 ACTIVE s:2025-11-08T22:21:09.617+0000 p:2251799813711967 i:false ⇄ 
+2251799813711985 <default> C88_SimpleUserTask_Process v1/v1.0.0 ACTIVE s:2025-11-08T22:21:09.617+0000 p:2251799813711977 i:false
+```
+which shows this process instance family tree:
+```
+2251799813711967  C88_MultipleSubProcessesParentProcess  v1/v1.0.0  (root)
+├─ 2251799813711976  C88_SimpleUserTask_Process          v1/v1.0.0
+└─ 2251799813711977  C88_SimpleParentProcess             v2/v1.0.1
+   └─ 2251799813711985  C88_SimpleUserTask_Process       v1/v1.0.0
+```
+Let's cancel the mid-child process instance `2251799813711977`:
+```bash
+$ ./c8volt cancel pi --key=2251799813711977
+You are about to cancel 1 process instance(s)? [y/N]: y
+INFO cancelling process instances requested for 1 unique key(s) using 1 worker(s)
+INFO cannot cancel, process instance with key 2251799813711977 is a child process of a root parent with key 2251799813711967
+INFO use --force flag to cancel the root process instance with key 2251799813711967 and all its child processes
+INFO cancelling 1 process instance(s) completed: 0 succeeded or already cancelled/teminated, 1 failed
+```
+We need more power, so let's add the `--force` flag to cancel the whole tree:
+```bash
+$ ./c8volt cancel pi --key=2251799813711977 --force
+You are about to cancel 1 process instance(s)? [y/N]: y
+INFO cancelling process instances requested for 1 unique key(s) using 1 worker(s)
+INFO cannot cancel, process instance with key 2251799813711977 is a child process of a root parent with key 2251799813711967
+INFO force flag is set, cancelling root process instance with key 2251799813711967 and all its child processes
+INFO waiting for process instance with key 2251799813711967 to be cancelled by workflow engine...
+INFO process instance 2251799813711967 currently in state ACTIVE; waiting...
+INFO process instance 2251799813711967 currently in state ACTIVE; waiting...
+INFO process instance 2251799813711967 currently in state ACTIVE; waiting...
+INFO process instance with key 2251799813711967 was successfully (confirmed) cancelled
+INFO cancelling the family of 1 process instance(s) completed: 1 succeeded or already cancelled/teminated, 0 failed
+
+```
+What has happened?
+1. **c8volt** detected that the specified process instance 2251799813711977 is a child and found its root ancestor 2251799813711967.
+2. It cancelled the root process instance 2251799813711967, which in turn cancelled all its child process instances.
+3. It waited until the root process instance reached the `CANCELED` (in C8.8 `TERMINATED`) state.
+
+Let's check the family tree again:
+```bash
+$ ./c8volt walk pi --key 2251799813711967 --family
+2251799813711967 <default> C88_MultipleSubProcessesParentProcess v1/v1.0.0 TERMINATED s:2025-11-08T22:21:09.617Z e:2025-11-09T08:14:00.681Z p:<root> i:false ⇄ 
+2251799813711976 <default> C88_SimpleUserTask_Process v1/v1.0.0 CANCELED s:2025-11-08T22:21:09.617+0000 e:2025-11-09T08:14:00.681+0000 p:2251799813711967 i:false ⇄ 
+2251799813711977 <default> C88_SimpleParentProcess v2/v1.0.1 CANCELED s:2025-11-08T22:21:09.617+0000 e:2025-11-09T08:14:00.681+0000 p:2251799813711967 i:false ⇄ 
+2251799813711985 <default> C88_SimpleUserTask_Process v1/v1.0.0 CANCELED s:2025-11-08T22:21:09.617+0000 e:2025-11-09T08:14:00.681+0000 p:2251799813711977 i:false
+```
+
+**DONE IS DONE!**
+
 ## Quick Start with c8volt
 
-1. **Install Camunda 8.8 Run**  
+1. **Install Camunda 8.8 Run**
 
 Download [Camunda 8 Run](https://downloads.camunda.cloud/release/camunda/c8run), unpack and start it with `./start.sh`.
 Use listed relevant URLs and default credentials to create the configuration for c8volt.
@@ -239,7 +294,7 @@ INFO creation of 5 process instances completed
 
 ### Searching Process Instances
 
-**c8volt** provides powerful searching capabilities for process instances. 
+**c8volt** provides powerful searching capabilities for process instances.
 It not only can find process instances by standard criteria such as process definition ID, BPMN process ID, version, state, tenant, but also traverse their parent-child relationships.
 It offers different output formats suitable for scripting, such as one-liner or keys-only. The latter allows easy piping of results to other commands.
 
@@ -293,7 +348,7 @@ $ ./c8volt walk pi --key=2251799813686596 --mode=family
 
 Standard cancellation of process instances in Camunda 8 is asynchronous and does not guarantee that the instance is actually cancelled when the API call returns successfully.
 **c8volt** provides a waiting mechanism that polls the process instance state until it reaches the desired `CANCELED` state or a timeout occurs.
-It allows also forced cancellation a process instance even it is a child, by traversing the parent chain and cancelling its root ancestor. 
+It allows also forced cancellation a process instance even it is a child, by traversing the parent chain and cancelling its root ancestor.
 
 #### Cancellation in Action
 
@@ -352,9 +407,9 @@ This output type can be easily piped to other commands, e.g., to delete all thes
 
 ### Deletion
 
-Deletion of process instances and even process definitions in Camunda 8 is not straightforward. 
+Deletion of process instances and even process definitions in Camunda 8 is not straightforward.
 Due to distribution of state across multiple components and asynchronous nature of operations, additional steps are required to ensure that the resource is really deleted.
-It is also possible to create an inconsistent state e.g. by deleting a process instance that is a parent of other active process instances as Camunda 8 API does 
+It is also possible to create an inconsistent state e.g. by deleting a process instance that is a parent of other active process instances as Camunda 8 API does
 not prevent that or cascades the deletion to child instances as in case of cancellation.
 
 #### Deletion of Process Instances in Action
@@ -463,9 +518,9 @@ app:
 - Camunda 8 Operate API
 - Camunda 8 Tasklist API
 
-The base URL to Camunda 8 Orchestration Cluster API is usually in the form of `https://<host>:<port>/v2`, 
+The base URL to Camunda 8 Orchestration Cluster API is usually in the form of `https://<host>:<port>/v2`,
 while the Operate and Tasklist APIs are usually in the form of `https://<host>:<port>`.
-If you provide only the Camunda 8 Orchestration Cluster API base URL, **c8volt** will assume that Operate and Tasklist APIs 
+If you provide only the Camunda 8 Orchestration Cluster API base URL, **c8volt** will assume that Operate and Tasklist APIs
 are available under the same host and port without the `/v2` suffix.
 Here is an example configuration snippet for API base URLs for Camunda 8 running locally:
 
@@ -511,7 +566,7 @@ auth:
 
 #### Authentication with API Cookie (development with Camunda 8 Run only)
 
-This method is only suitable for local development with Camunda 8 Run (up to version 8.7), 
+This method is only suitable for local development with Camunda 8 Run (up to version 8.7),
 as it uses the API cookie set by the web interface.
 
 You need to provide the following settings:
@@ -645,7 +700,7 @@ example:
 Sensitive fields such as `auth.oauth2.client_secret` are **always masked** when
 the configuration is printed or logged. The raw values are still loaded and used internally, but they will never appear in output.
 
-## Archive Section 
+## Archive Section
 (for future documentation, might not work anymore in the current version, will be removed soon)
 
 - **Delete active process instances by cancelling them first**

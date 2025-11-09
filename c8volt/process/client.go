@@ -89,17 +89,17 @@ func (c *client) SearchProcessInstances(ctx context.Context, filter ProcessInsta
 func (c *client) CancelProcessInstance(ctx context.Context, key string, opts ...foptions.FacadeOption) (CancelReport, error) {
 	resp, err := c.piApi.CancelProcessInstance(ctx, key, foptions.MapFacadeOptionsToCallOptions(opts)...)
 	if err != nil {
-		return CancelReport{Key: key, Ok: false, StatusCode: resp.StatusCode, Status: resp.Status}, ferrors.FromDomain(err)
+		return CancelReport{Key: key, Ok: resp.Ok, StatusCode: resp.StatusCode, Status: resp.Status}, ferrors.FromDomain(err)
 	}
-	return CancelReport{Key: key, Ok: true, StatusCode: resp.StatusCode, Status: resp.Status}, nil
+	return CancelReport{Key: key, Ok: resp.Ok, StatusCode: resp.StatusCode, Status: resp.Status}, nil
 }
 
 func (c *client) DeleteProcessInstance(ctx context.Context, key string, opts ...foptions.FacadeOption) (DeleteReport, error) {
 	resp, err := c.piApi.DeleteProcessInstance(ctx, key, foptions.MapFacadeOptionsToCallOptions(opts)...)
 	if err != nil {
-		return DeleteReport{Key: key, Ok: false, StatusCode: resp.StatusCode, Status: resp.Status}, ferrors.FromDomain(err)
+		return DeleteReport{Key: key, Ok: resp.Ok, StatusCode: resp.StatusCode, Status: resp.Status}, ferrors.FromDomain(err)
 	}
-	return DeleteReport{Key: key, Ok: true, StatusCode: resp.StatusCode, Status: resp.Status}, nil
+	return DeleteReport{Key: key, Ok: resp.Ok, StatusCode: resp.StatusCode, Status: resp.Status}, nil
 }
 
 func (c *client) GetDirectChildrenOfProcessInstance(ctx context.Context, key string, opts ...foptions.FacadeOption) (ProcessInstances, error) {

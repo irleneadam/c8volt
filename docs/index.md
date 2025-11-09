@@ -1,8 +1,6 @@
 <img src="./logo/c8volt_orange_black_bkg_white_400x152.png" alt="c8volt logo" style="border-radius: 5px;" />
 
-# c8volt - Yet Another Camunda 8 CLI Tool?
-
-No, **c8volt** is different. Its design and development focus on operational effectiveness, ensuring that done is done.
+No, **c8volt** is different. Its design and development focus on operational effectiveness, ensuring that **done is done**.
 There are plenty of operational tasks where you want to be sure that:
 
 * A process instance was started – is it really active and running?
@@ -18,6 +16,61 @@ If some operation requires additional steps to reach the desired state, **c8volt
 * Traversing the process instance tree to perform operations like cancellation or deletion.
 
 **c8volt** focuses on real operational use cases while still providing the familiar CLI functionality such as standard CRUD commands on various resources.
+
+Not already convinced? Here an example of powerful features of **c8volt** in action:
+```bash
+$ ./c8volt walk pi --key 2251799813711967 --family
+2251799813711967 <default> C88_MultipleSubProcessesParentProcess v1/v1.0.0 ACTIVE s:2025-11-08T22:21:09.617Z p:<root> i:false ⇄ 
+2251799813711976 <default> C88_SimpleUserTask_Process v1/v1.0.0 ACTIVE s:2025-11-08T22:21:09.617+0000 p:2251799813711967 i:false ⇄ 
+2251799813711977 <default> C88_SimpleParentProcess v2/v1.0.1 ACTIVE s:2025-11-08T22:21:09.617+0000 p:2251799813711967 i:false ⇄ 
+2251799813711985 <default> C88_SimpleUserTask_Process v1/v1.0.0 ACTIVE s:2025-11-08T22:21:09.617+0000 p:2251799813711977 i:false
+```
+which shows this process instance family tree:
+```
+2251799813711967  C88_MultipleSubProcessesParentProcess  v1/v1.0.0  (root)
+├─ 2251799813711976  C88_SimpleUserTask_Process          v1/v1.0.0
+└─ 2251799813711977  C88_SimpleParentProcess             v2/v1.0.1
+   └─ 2251799813711985  C88_SimpleUserTask_Process       v1/v1.0.0
+```
+Let's cancel the mid-child process instance `2251799813711977`:
+```bash
+$ ./c8volt cancel pi --key=2251799813711977
+You are about to cancel 1 process instance(s)? [y/N]: y
+INFO cancelling process instances requested for 1 unique key(s) using 1 worker(s)
+INFO cannot cancel, process instance with key 2251799813711977 is a child process of a root parent with key 2251799813711967
+INFO use --force flag to cancel the root process instance with key 2251799813711967 and all its child processes
+INFO cancelling 1 process instance(s) completed: 0 succeeded or already cancelled/teminated, 1 failed
+```
+We need more power, so let's add the `--force` flag to cancel the whole tree:
+```bash
+$ ./c8volt cancel pi --key=2251799813711977 --force
+You are about to cancel 1 process instance(s)? [y/N]: y
+INFO cancelling process instances requested for 1 unique key(s) using 1 worker(s)
+INFO cannot cancel, process instance with key 2251799813711977 is a child process of a root parent with key 2251799813711967
+INFO force flag is set, cancelling root process instance with key 2251799813711967 and all its child processes
+INFO waiting for process instance with key 2251799813711967 to be cancelled by workflow engine...
+INFO process instance 2251799813711967 currently in state ACTIVE; waiting...
+INFO process instance 2251799813711967 currently in state ACTIVE; waiting...
+INFO process instance 2251799813711967 currently in state ACTIVE; waiting...
+INFO process instance with key 2251799813711967 was successfully (confirmed) cancelled
+INFO cancelling the family of 1 process instance(s) completed: 1 succeeded or already cancelled/teminated, 0 failed
+
+```
+What has happened?
+1. **c8volt** detected that the specified process instance 2251799813711977 is a child and found its root ancestor 2251799813711967.
+2. It cancelled the root process instance 2251799813711967, which in turn cancelled all its child process instances.
+3. It waited until the root process instance reached the `CANCELED` (in C8.8 `TERMINATED`) state.
+
+Let's check the family tree again:
+```bash
+$ ./c8volt walk pi --key 2251799813711967 --family
+2251799813711967 <default> C88_MultipleSubProcessesParentProcess v1/v1.0.0 TERMINATED s:2025-11-08T22:21:09.617Z e:2025-11-09T08:14:00.681Z p:<root> i:false ⇄ 
+2251799813711976 <default> C88_SimpleUserTask_Process v1/v1.0.0 CANCELED s:2025-11-08T22:21:09.617+0000 e:2025-11-09T08:14:00.681+0000 p:2251799813711967 i:false ⇄ 
+2251799813711977 <default> C88_SimpleParentProcess v2/v1.0.1 CANCELED s:2025-11-08T22:21:09.617+0000 e:2025-11-09T08:14:00.681+0000 p:2251799813711967 i:false ⇄ 
+2251799813711985 <default> C88_SimpleUserTask_Process v1/v1.0.0 CANCELED s:2025-11-08T22:21:09.617+0000 e:2025-11-09T08:14:00.681+0000 p:2251799813711977 i:false
+```
+
+**DONE IS DONE!**
 
 ## Quick Start with c8volt
 
@@ -666,7 +719,7 @@ the configuration is printed or logged. The raw values are still loaded and used
 - **List process instances that are children of orphan parent process instances**  
   (i.e., their parent process instance no longer exists)
   ```bash
-  ./c8volt get pi --bpmn-process-id=<bpmn-process-id> --orphan-parents-only
+  ./c8volt get pi --bpmn-process-id=<bpmn-process-id> --orphan-roots-only
   ```
 
 - **List process instances for a specific process definition (model) and its first version**

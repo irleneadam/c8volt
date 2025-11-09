@@ -213,6 +213,7 @@ func (s *Service) CancelProcessInstance(ctx context.Context, key string, opts ..
 		s.log.Info(fmt.Sprintf("process instance with key %s cancellation requested (not confirmed, as no-wait is set)", key))
 	}
 	return d.CancelResponse{
+		Ok:         true,
 		StatusCode: resp.StatusCode(),
 		Status:     resp.Status(),
 	}, nil
@@ -253,9 +254,9 @@ func (s *Service) DeleteProcessInstance(ctx context.Context, key string, opts ..
 	orphans := edges[key]
 	if len(edges[key]) > 0 {
 		if cCfg.NoStateCheck {
-			s.log.Warn(fmt.Sprintf("deleting process instance with key %s, will cause creation of %d orphaned child process instances: %v", key, len(orphans), orphans))
+			s.log.Warn(fmt.Sprintf("deleting process instance with key %s, will cause creation of %d orphaned child process instance(s): %v", key, len(orphans), orphans))
 		} else {
-			s.log.Info(fmt.Sprintf("cannot delete, process instance with key %s has %d child process instances: %v; use --no-state-check to ignore child process instances and delete anyway", key, len(orphans), orphans))
+			s.log.Info(fmt.Sprintf("cannot delete, process instance with key %s has %d child process instance(s): %v; use --no-state-check to ignore and delete anyway", key, len(orphans), orphans))
 			return d.DeleteResponse{StatusCode: http.StatusConflict}, nil
 		}
 	}
@@ -289,7 +290,10 @@ func (s *Service) DeleteProcessInstance(ctx context.Context, key string, opts ..
 		return d.DeleteResponse{}, err
 	}
 	s.log.Info(fmt.Sprintf("process instance with key %s was successfully deleted", key))
-	return d.DeleteResponse{StatusCode: resp.StatusCode()}, nil
+	return d.DeleteResponse{
+		Ok:         true,
+		StatusCode: resp.StatusCode(),
+	}, nil
 }
 
 func (s *Service) GetProcessInstance(ctx context.Context, key string, opts ...services.CallOption) (d.ProcessInstance, error) {
