@@ -1,25 +1,27 @@
 <img src="./logo/c8volt_orange_black_bkg_white_400x152.png" alt="c8volt logo" style="border-radius: 5px;" />
 
-# c8volt - Yet Another Camunda 8 CLI Tool?
+# c8volt: Not Yet Another Camunda 8 CLI
 
-No, [**c8volt**](https://github.com/grafvonb/c8volt) is different. Its design and development focus on operational effectiveness, ensuring that done is done.
+[**c8volt**](https://github.com/grafvonb/c8volt) is different. Its design and development focus on operational effectiveness, ensuring that done is done.
 There are plenty of operational tasks where you want to be sure that:
 
-* A process instance was started – is it really active and running?
-* A process instance was canceled – is it really in the cancelled state?
-* A process instance tree was deleted – are all instances truly gone?
-* A process variable was set – does it hold the correct value?
+- A process instance was started – is it really active and running?
+- A process instance was canceled – is it really in the cancelled state?
+- A process instance tree was deleted – are all instances truly gone?
+- A process variable was set – does it hold the correct value?
 
 If some operation requires additional steps to reach the desired state, **c8volt** takes care of it for you by:
-* Running multiple process instances concurrently, with configurable number of workers.
-* Cancelling the root process instance when you want to cancel a child process instance.
-* Deleting process instances by first cancelling them and then deleting them.
-* Waiting until the process instance reaches the desired state (e.g., `CANCELED`)
-* Traversing the process instance tree to perform operations like cancellation or deletion.
+- Running multiple process instances concurrently, with configurable number of workers.
+- Cancelling the root process instance when you want to cancel a child process instance.
+- Deleting process instances by first cancelling them and then deleting them.
+- Waiting until the process instance reaches the desired state (e.g., `CANCELED`)
+- Traversing the process instance tree to perform operations like cancellation or deletion.
 
 **c8volt** focuses on real operational use cases while still providing the familiar CLI functionality such as standard CRUD commands on various resources.
 
-Not already convinced? Here an example of powerful features of **c8volt** in action:
+## Not Already Convinced?
+
+Here an example of powerful features of **c8volt** in action. Let’s cancel this still `ACTIVE` (sic!) process instance tree:
 ```bash
 $ ./c8volt walk pi --key 2251799813711967 --family
 2251799813711967 <default> C88_MultipleSubProcessesParentProcess v1/v1.0.0 ACTIVE s:2025-11-08T22:21:09.617Z p:<root> i:false ⇄ 
@@ -27,14 +29,14 @@ $ ./c8volt walk pi --key 2251799813711967 --family
 2251799813711977 <default> C88_SimpleParentProcess v2/v1.0.1 ACTIVE s:2025-11-08T22:21:09.617+0000 p:2251799813711967 i:false ⇄ 
 2251799813711985 <default> C88_SimpleUserTask_Process v1/v1.0.0 ACTIVE s:2025-11-08T22:21:09.617+0000 p:2251799813711977 i:false
 ```
-which shows this process instance family tree:
+The relationship tree looks like this:
 ```
 2251799813711967  C88_MultipleSubProcessesParentProcess  v1/v1.0.0  (root)
 ├─ 2251799813711976  C88_SimpleUserTask_Process          v1/v1.0.0
 └─ 2251799813711977  C88_SimpleParentProcess             v2/v1.0.1
    └─ 2251799813711985  C88_SimpleUserTask_Process       v1/v1.0.0
 ```
-Let's cancel the mid-child process instance `2251799813711977`:
+Try to cancel the mid-child process instance `2251799813711977`:
 ```bash
 $ ./c8volt cancel pi --key=2251799813711977
 You are about to cancel 1 process instance(s)? [y/N]: y
@@ -56,7 +58,6 @@ INFO process instance 2251799813711967 currently in state ACTIVE; waiting...
 INFO process instance 2251799813711967 currently in state ACTIVE; waiting...
 INFO process instance with key 2251799813711967 was successfully (confirmed) cancelled
 INFO cancelling the family of 1 process instance(s) completed: 1 succeeded or already cancelled/teminated, 0 failed
-
 ```
 What has happened?
 1. **c8volt** detected that the specified process instance 2251799813711977 is a child and found its root ancestor 2251799813711967.
@@ -165,7 +166,7 @@ You should see output like this:
 ```
 ## Highlights
 
-The comprehensive documentation is on its way, but here are some highlights of what **c8volt** can do for you.
+The comprehensive documentation is on its way, but here are some highlights of what **c8volt** can do for you, with concrete usage examples.
 
 ### Embedded Deployment of BPMN Models
 
@@ -197,7 +198,6 @@ $ ./c8volt embed deploy --all
 2251799813686017 <default> C88_SimpleUserTask_Process v1 vprocessdefinitions/C88_SimpleUserTaskProcess.bpmn (2251799813686013)
 2251799813686018 <default> C88_SimpleUserTaskWithIncident_Process v1 vprocessdefinitions/C88_SimpleUserTaskWithIncidentProcess.bpmn (2251799813686013)
 found: 5
-
 ```
 Check that the models are deployed:
 ```bash
@@ -208,7 +208,6 @@ $ ./c8volt get pd
 2251799813686018 <default> C88_SimpleUserTaskWithIncident_Process v1/v1.0.0
 2251799813686017 <default> C88_SimpleUserTask_Process v1/v1.0.0
 found: 5
-
 ```
 And run a process instance using standard run command:
 ```bash
@@ -457,8 +456,8 @@ INFO deleting 1 process instances completed: 1 succeeded, 0 failed
 
 #### Deletion of Process Definitions in Action
 
-When deleting a process definition in Camunda 8, you must ensure that there are no active process instances running of that definition. 
-If there are any, you must cancel them first. 
+When deleting a process definition in Camunda 8, you must ensure that there are no active process instances running of that definition.
+If there are any, you must cancel them first.
 **c8volt** helps you with that by providing the `--force` flag that automatically finds and cancels all active process instances.
 
 Try to delete the 4th version of `C88_MultipleSubProcessesParentProcess` process definition that has active process instances:
@@ -584,8 +583,8 @@ auth:
   mode: "oauth2"
   oauth2:
     token_url: "http://localhost:18080/auth/realms/camunda-platform/protocol/openid-connect"
-    client_id: "c8volt"
-    client_secret: "*******" # for local tests only, use environment variable C8VOLT_AUTH_OAUTH2_CLIENT_SECRET instead
+    client_id: "*******" # use environment variable C8VOLT_AUTH_OAUTH2_CLIENT_ID in PROD
+    client_secret: "*******" # use environment variable C8VOLT_AUTH_OAUTH2_CLIENT_SECRET in PROD
     scopes:
       camunda_api: "profile"
       operate_api: "profile"
