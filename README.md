@@ -26,7 +26,44 @@ Proper exit codes, various output formats and piping capabilities make **c8volt*
 
 ## Not Already Convinced?
 
-Here an example of powerful features of **c8volt** in action. Let’s cancel this still `ACTIVE` (sic!) process instance tree:
+Here two short examples of what **c8volt** can do for you.
+
+### Running a Process Instance with Activation Confirmation
+
+You want to start a process instance and be sure that it is really active and running. Standard use case, isn’t it?
+
+Let's list latest deployed process definitions first:
+```bash
+$ ./c8volt get pd --latest
+2251799813686015 <default> C88_DoubleUserTask_Process v1/v1.0.0
+2251799813743379 <default> C88_MultipleSubProcessesParentProcess v5/v1.0.4
+2251799813687133 <default> C88_SimpleParentProcess v2/v1.0.1
+2251799813686018 <default> C88_SimpleUserTaskWithIncident_Process v1/v1.0.0
+2251799813686017 <default> C88_SimpleUserTask_Process v1/v1.0.0
+found: 5
+```
+Now start a process instance of `C88_SimpleUserTask_Process` (**c8volt** automatically picks the latest version) and wait until it is active:
+```bash
+$ ./c8volt run pi -b C88_SimpleUserTask_Process
+INFO waiting for process instance of 2251799813686017 with key 2251799814015823 to be started by workflow engine...
+INFO process instance 2251799814015823 succesfully created (start registered at 2025-11-13T05:07:46.105Z and confirmed at 2025-11-13T05:07:49Z) using process definition id 2251799813686017, C88_SimpleUserTask_Process, v1, tenant: <default>
+```
+Yes, it's really started and active! **c8volt** assured that by polling the process instance state until it reached `ACTIVE`.
+
+Awaiting the confirmation is default behavior of **c8volt** when starting process instances and other operations.
+
+**DONE IS DONE!**
+
+However, if you don't want that, you can use the `--no-wait` flag, to switch off the waiting mechanism:
+```bash
+$ ./c8volt run pi -b C88_SimpleUserTask_Process --no-wait
+INFO process instance creation with the key 2251799814016994 requested at 2025-11-13T05:15:46Z (run not confirmed, as no-wait is set) using process definition id 2251799813686017, C88_SimpleUserTask_Process, v1, tenant: <default>
+```
+
+### Cancelling a Process Instance Tree
+Here something more complex: You have a process instance tree with parent-child relationships and you want to cancel a mid-child process instance.
+
+Let's see the current process instance family tree first:
 ```bash
 $ ./c8volt walk pi --key 2251799813711967 --family
 2251799813711967 <default> C88_MultipleSubProcessesParentProcess v1/v1.0.0 ACTIVE s:2025-11-08T22:21:09.617Z p:<root> i:false ⇄ 
@@ -34,7 +71,7 @@ $ ./c8volt walk pi --key 2251799813711967 --family
 2251799813711977 <default> C88_SimpleParentProcess v2/v1.0.1 ACTIVE s:2025-11-08T22:21:09.617+0000 p:2251799813711967 i:false ⇄ 
 2251799813711985 <default> C88_SimpleUserTask_Process v1/v1.0.0 ACTIVE s:2025-11-08T22:21:09.617+0000 p:2251799813711977 i:false
 ```
-The relationship tree looks like this:
+The relationship between the process instances can be visualized like this:
 ```
 2251799813711967  C88_MultipleSubProcessesParentProcess  v1/v1.0.0  (root)
 ├─ 2251799813711976  C88_SimpleUserTask_Process          v1/v1.0.0
@@ -50,7 +87,9 @@ INFO cannot cancel, process instance with key 2251799813711977 is a child proces
 INFO use --force flag to cancel the root process instance with key 2251799813711967 and all its child processes
 INFO cancelling 1 process instance(s) completed: 0 succeeded or already cancelled/teminated, 1 failed
 ```
-We need more power, so let's add the `--force` flag to cancel the whole tree:
+You cannot cancel a child process instance directly. It is as standard behavior of Camunda 8. You need to cancel the root process instance to cancel all its children.
+
+**c8volt** provides a flag `--force` to automatically find and cancel the root process instance, thus all its child processes:
 ```bash
 $ ./c8volt cancel pi --key=2251799813711977 --force
 You are about to cancel 1 process instance(s)? [y/N]: y
@@ -77,8 +116,9 @@ $ ./c8volt walk pi --key 2251799813711967 --family
 2251799813711977 <default> C88_SimpleParentProcess v2/v1.0.1 CANCELED s:2025-11-08T22:21:09.617+0000 e:2025-11-09T08:14:00.681+0000 p:2251799813711967 i:false ⇄ 
 2251799813711985 <default> C88_SimpleUserTask_Process v1/v1.0.0 CANCELED s:2025-11-08T22:21:09.617+0000 e:2025-11-09T08:14:00.681+0000 p:2251799813711977 i:false
 ```
+The whole process instance tree is now cancelled!
 
-**DONE IS DONE!** [https://github.com/grafvonb/c8volt](https://github.com/grafvonb/c8volt)
+**DONE IS DONE!**
 
 ## Quick Start with c8volt
 
@@ -125,7 +165,7 @@ apis:
 auth:
   mode: none
 log:
-  level: debug
+  level: info
 ```
 4. **Run c8volt**
 
