@@ -17,6 +17,7 @@ type ProcessDefinitionFilter struct {
 	TenantId          string `json:"tenantId,omitempty"`
 	ProcessVersion    int32  `json:"processVersion,omitempty"`
 	ProcessVersionTag string `json:"processVersionTag,omitempty"`
+	IsLatestVersion   bool   `json:"isLatestVersion,omitempty"`
 }
 
 func SortByVersionDesc(pds []ProcessDefinition) {
