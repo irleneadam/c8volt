@@ -50,7 +50,7 @@ bin/
 Thumbs.db
 
 # camunda-docs
-api/camunda-docs/
+api/camunda-docs*/
 
 # c8volt's exported resources
 processdefinitions
@@ -59,3 +59,8 @@ processdefinitions
 *.iml
 *.iws
 out/
+
+# Node modules
+node_modules/
+package-lock.json
+package.json
