@@ -4,7 +4,6 @@
 *.dll
 *.so
 *.dylib
-config*.yaml
 
 # Test binary, built with `go test -c`
 *.test
@@ -53,6 +52,9 @@ Thumbs.db
 api/camunda-docs*/
 
 # c8volt's exported resources
+# c8volt
+config*.yaml
+config*.yaml.bak
 processdefinitions
 
 # JetBrains IDEs

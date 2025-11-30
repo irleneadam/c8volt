@@ -26,7 +26,7 @@ var expectProcessInstanceCmd = &cobra.Command{
 		}
 		states, err := process.ParseStates(flagExpectPIStates)
 		if err != nil {
-			log.Error(fmt.Sprintf("error parsing states: %v", err))
+			log.Error(fmt.Sprintf("error parsing states: %v; valid values are: [active, completed, canceled, terminated or absent]", err))
 			os.Exit(exitcode.NotFound)
 		}
 		log.Info(fmt.Sprintf("waiting for process instance %s to reach one of the states [%s]", flagExpectPIKey, states))
@@ -43,6 +43,6 @@ func init() {
 
 	expectProcessInstanceCmd.Flags().StringVarP(&flagExpectPIKey, "key", "k", "", "process instance key to expect a state for")
 	_ = expectProcessInstanceCmd.MarkFlagRequired("key")
-	expectProcessInstanceCmd.Flags().StringSliceVarP(&flagExpectPIStates, "state", "s", nil, "state of a process instance: ACTIVE, COMPLETED, CANCELED, TERMINATED or ABSENT")
+	expectProcessInstanceCmd.Flags().StringSliceVarP(&flagExpectPIStates, "state", "s", nil, "state of a process instance; valid values aer: [active, completed, canceled, terminated or absent]")
 	_ = expectProcessInstanceCmd.MarkFlagRequired("state")
 }

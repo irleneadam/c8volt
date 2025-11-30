@@ -12,6 +12,7 @@ const (
 	StateCompleted  State = "COMPLETED"
 	StateCanceled   State = "CANCELED"
 	StateTerminated State = "TERMINATED"
+	StateAbsent     State = "ABSENT"
 )
 
 func (s State) String() string { return string(s) }
@@ -30,7 +31,7 @@ func (s State) In(states ...State) bool {
 }
 
 func (s State) IsTerminal() bool {
-	return s.In(StateCompleted, StateCanceled, StateTerminated)
+	return s.In(StateCompleted, StateCanceled, StateTerminated, StateAbsent)
 }
 
 type States []State
