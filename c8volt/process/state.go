@@ -15,6 +15,7 @@ const (
 	StateCompleted  State = "COMPLETED"
 	StateCanceled   State = "CANCELED"
 	StateTerminated State = "TERMINATED"
+	StateAbsent     State = "ABSENT"
 )
 
 func (s State) String() string { return string(s) }
@@ -44,6 +45,8 @@ func ParseState(in string) (State, bool) {
 		return StateCanceled, true
 	case "terminated":
 		return StateTerminated, true
+	case "absent":
+		return StateAbsent, true
 	default:
 		return "", false
 	}
