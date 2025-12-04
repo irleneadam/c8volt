@@ -40,6 +40,6 @@ c8volt run [flags]
 
 ### SEE ALSO
 
-* [c8volt](c8volt.md)	 - c8volt is a CLI tool to interact with Camunda 8
+* [c8volt](c8volt.md)	 - c8volt: Camunda 8 Operations CLI
 * [c8volt run process-instance](c8volt_run_process-instance.md)	 - Run process instance(s) by process definition
 

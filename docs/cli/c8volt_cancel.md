@@ -39,6 +39,6 @@ c8volt cancel [flags]
 
 ### SEE ALSO
 
-* [c8volt](c8volt.md)	 - c8volt is a CLI tool to interact with Camunda 8
+* [c8volt](c8volt.md)	 - c8volt: Camunda 8 Operations CLI
 * [c8volt cancel process-instance](c8volt_cancel_process-instance.md)	 - Cancel process instance(s) by key(s) and wait for the cancellation to complete
 

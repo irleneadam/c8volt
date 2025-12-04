@@ -39,6 +39,6 @@ c8volt expect [flags]
 
 ### SEE ALSO
 
-* [c8volt](c8volt.md)	 - c8volt is a CLI tool to interact with Camunda 8
+* [c8volt](c8volt.md)	 - c8volt: Camunda 8 Operations CLI
 * [c8volt expect process-instance](c8volt_expect_process-instance.md)	 - Expect a process instance to reach a certain state
 

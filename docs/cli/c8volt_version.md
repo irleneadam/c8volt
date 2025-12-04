@@ -37,5 +37,5 @@ c8volt version [flags]
 
 ### SEE ALSO
 
-* [c8volt](c8volt.md)	 - c8volt is a CLI tool to interact with Camunda 8
+* [c8volt](c8volt.md)	 - c8volt: Camunda 8 Operations CLI
 

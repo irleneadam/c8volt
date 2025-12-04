@@ -39,6 +39,6 @@ c8volt deploy [flags]
 
 ### SEE ALSO
 
-* [c8volt](c8volt.md)	 - c8volt is a CLI tool to interact with Camunda 8
+* [c8volt](c8volt.md)	 - c8volt: Camunda 8 Operations CLI
 * [c8volt deploy process-definition](c8volt_deploy_process-definition.md)	 - Deploy a process definition
 

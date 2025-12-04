@@ -6,7 +6,11 @@ description: "CLI reference for c8volt"
 
 ## c8volt
 
-c8volt is a CLI tool to interact with Camunda 8
+c8volt: Camunda 8 Operations CLI
+
+### Synopsis
+
+c8volt: Camunda 8 Operations CLI. The tool for Camunda 8 admins and developers to verify outcomes.
 
 ```
 c8volt [flags]

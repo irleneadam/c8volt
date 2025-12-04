@@ -37,6 +37,6 @@ c8volt walk [flags]
 
 ### SEE ALSO
 
-* [c8volt](c8volt.md)	 - c8volt is a CLI tool to interact with Camunda 8
+* [c8volt](c8volt.md)	 - c8volt: Camunda 8 Operations CLI
 * [c8volt walk process-instance](c8volt_walk_process-instance.md)	 - Traverse (walk) the parent/child graph of process instances
 

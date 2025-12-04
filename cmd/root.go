@@ -32,7 +32,8 @@ func Root() *cobra.Command { return rootCmd }
 
 var rootCmd = &cobra.Command{
 	Use:   "c8volt",
-	Short: "c8volt is a CLI tool to interact with Camunda 8",
+	Short: "c8volt: Camunda 8 Operations CLI",
+	Long:  `c8volt: Camunda 8 Operations CLI. The tool for Camunda 8 admins and developers to verify outcomes.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		v := viper.New()
 		if err := initViper(v, cmd); err != nil {

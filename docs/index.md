@@ -122,7 +122,7 @@ The whole process instance tree is now cancelled!
 
 ## CLI Reference
 
-The full command/flag reference is generated from the code.
+The full command/flag reference is generated from the code:
 
 - [c8volt root command](./cli/c8volt.md)
 - [get commands](./cli/c8volt_get.md)

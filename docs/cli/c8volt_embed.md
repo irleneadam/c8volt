@@ -37,7 +37,7 @@ c8volt embed [flags]
 
 ### SEE ALSO
 
-* [c8volt](c8volt.md)	 - c8volt is a CLI tool to interact with Camunda 8
+* [c8volt](c8volt.md)	 - c8volt: Camunda 8 Operations CLI
 * [c8volt embed deploy](c8volt_embed_deploy.md)	 - Deploy embedded (virtual) resources
 * [c8volt embed export](c8volt_embed_export.md)	 - Export embedded (virtual) resources to local files. Can be used to deploy updated versions of embedded resources using 'c8volt deploy'.
 * [c8volt embed list](c8volt_embed_list.md)	 - List embedded (virtual) files containing process definitions
