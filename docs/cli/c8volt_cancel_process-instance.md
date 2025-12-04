@@ -1,9 +1,8 @@
 ---
 title: "c8volt cancel process-instance"
-slug: "c8volt_cancel_process-instance"
-description: "CLI reference for c8volt cancel process-instance"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt cancel process-instance
 
 Cancel process instance(s) by key(s) and wait for the cancellation to complete

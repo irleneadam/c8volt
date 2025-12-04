@@ -1,9 +1,8 @@
 ---
 title: "c8volt walk"
-slug: "c8volt_walk"
-description: "CLI reference for c8volt walk"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt walk
 
 Traverse (walk) the parent/child graph of resource type

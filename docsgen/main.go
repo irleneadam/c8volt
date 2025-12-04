@@ -41,7 +41,14 @@ func main() {
 				log.Fatal(err)
 			}
 		} else {
-			if err := doc.GenMarkdownTree(root, *out); err != nil {
+			prep := func(filename string) string {
+				base := filepath.Base(filename)
+				name := strings.TrimSuffix(base, filepath.Ext(base))
+				title := strings.ReplaceAll(name, "_", " ")
+				return fmt.Sprintf("---\ntitle: %q\n---\n\n[CLI Reference]({{ \"/cli/\" | relative_url }})\n", title)
+			}
+			link := func(name string) string { return strings.ToLower(name) }
+			if err := doc.GenMarkdownTreeCustom(root, *out, prep, link); err != nil {
 				log.Fatal(err)
 			}
 		}

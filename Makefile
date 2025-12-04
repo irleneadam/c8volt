@@ -16,7 +16,7 @@ generate:
 	go generate $(PKG)
 
 docs:
-	go run ./docsgen -out ./docs/cli -format markdown -frontmatter
+	go run ./docsgen -out ./docs/cli -format markdown
 
 build:
 	mkdir -p $(BIN_DIR)

@@ -1,9 +1,8 @@
 ---
 title: "c8volt expect"
-slug: "c8volt_expect"
-description: "CLI reference for c8volt expect"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt expect
 
 Expect resources to be in a certain state

@@ -1,9 +1,8 @@
 ---
 title: "c8volt get cluster-topology"
-slug: "c8volt_get_cluster-topology"
-description: "CLI reference for c8volt get cluster-topology"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt get cluster-topology
 
 Get the cluster topology of the connected Camunda 8 cluster

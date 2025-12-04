@@ -1,9 +1,8 @@
 ---
 title: "c8volt run"
-slug: "c8volt_run"
-description: "CLI reference for c8volt run"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt run
 
 Run resources

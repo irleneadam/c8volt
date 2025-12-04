@@ -1,9 +1,8 @@
 ---
 title: "c8volt walk process-instance"
-slug: "c8volt_walk_process-instance"
-description: "CLI reference for c8volt walk process-instance"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt walk process-instance
 
 Traverse (walk) the parent/child graph of process instances

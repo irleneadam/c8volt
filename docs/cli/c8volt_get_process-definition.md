@@ -1,9 +1,8 @@
 ---
 title: "c8volt get process-definition"
-slug: "c8volt_get_process-definition"
-description: "CLI reference for c8volt get process-definition"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt get process-definition
 
 Get deployed process definitions

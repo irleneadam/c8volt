@@ -1,9 +1,8 @@
 ---
 title: "c8volt run process-instance"
-slug: "c8volt_run_process-instance"
-description: "CLI reference for c8volt run process-instance"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt run process-instance
 
 Run process instance(s) by process definition

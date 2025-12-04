@@ -1,9 +1,8 @@
 ---
 title: "c8volt expect process-instance"
-slug: "c8volt_expect_process-instance"
-description: "CLI reference for c8volt expect process-instance"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt expect process-instance
 
 Expect a process instance to reach a certain state

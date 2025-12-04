@@ -1,9 +1,8 @@
 ---
 title: "c8volt embed export"
-slug: "c8volt_embed_export"
-description: "CLI reference for c8volt embed export"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt embed export
 
 Export embedded (virtual) resources to local files. Can be used to deploy updated versions of embedded resources using 'c8volt deploy'.

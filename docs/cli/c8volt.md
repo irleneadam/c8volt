@@ -1,9 +1,8 @@
 ---
 title: "c8volt"
-slug: "c8volt"
-description: "CLI reference for c8volt"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt
 
 c8volt: Camunda 8 Operations CLI

@@ -1,9 +1,8 @@
 ---
 title: "c8volt delete process-instance"
-slug: "c8volt_delete_process-instance"
-description: "CLI reference for c8volt delete process-instance"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt delete process-instance
 
 Delete a process instance by its key

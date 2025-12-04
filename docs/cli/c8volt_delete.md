@@ -1,9 +1,8 @@
 ---
 title: "c8volt delete"
-slug: "c8volt_delete"
-description: "CLI reference for c8volt delete"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt delete
 
 Delete resources

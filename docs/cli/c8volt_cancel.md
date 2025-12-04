@@ -1,9 +1,8 @@
 ---
 title: "c8volt cancel"
-slug: "c8volt_cancel"
-description: "CLI reference for c8volt cancel"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt cancel
 
 Cancel resources

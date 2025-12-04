@@ -1,9 +1,8 @@
 ---
 title: "c8volt delete process-definition"
-slug: "c8volt_delete_process-definition"
-description: "CLI reference for c8volt delete process-definition"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt delete process-definition
 
 Delete a process definition(s)

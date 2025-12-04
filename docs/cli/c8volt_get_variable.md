@@ -1,9 +1,8 @@
 ---
 title: "c8volt get variable"
-slug: "c8volt_get_variable"
-description: "CLI reference for c8volt get variable"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt get variable
 
 Get a variable by its name from a process instance

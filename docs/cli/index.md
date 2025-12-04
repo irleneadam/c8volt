@@ -1,12 +1,10 @@
 ---
 title: "c8volt"
 slug: "c8volt"
-description: "CLI reference for c8volt"
+description: "CLI Reference for c8volt"
 ---
 
-## c8volt
-
-c8volt: Camunda 8 Operations CLI
+## [c8volt](../index.md) CLI Reference
 
 The full command/flag reference is generated from the code:
 

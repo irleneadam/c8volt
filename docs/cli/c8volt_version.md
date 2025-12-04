@@ -1,9 +1,8 @@
 ---
 title: "c8volt version"
-slug: "c8volt_version"
-description: "CLI reference for c8volt version"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt version
 
 Print version information

@@ -1,9 +1,8 @@
 ---
 title: "c8volt embed list"
-slug: "c8volt_embed_list"
-description: "CLI reference for c8volt embed list"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt embed list
 
 List embedded (virtual) files containing process definitions

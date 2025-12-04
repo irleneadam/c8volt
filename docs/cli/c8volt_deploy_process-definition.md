@@ -1,9 +1,8 @@
 ---
 title: "c8volt deploy process-definition"
-slug: "c8volt_deploy_process-definition"
-description: "CLI reference for c8volt deploy process-definition"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt deploy process-definition
 
 Deploy a process definition

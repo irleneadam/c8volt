@@ -1,9 +1,8 @@
 ---
 title: "c8volt embed"
-slug: "c8volt_embed"
-description: "CLI reference for c8volt embed"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt embed
 
 Manage embedded resources

@@ -1,9 +1,8 @@
 ---
 title: "c8volt get process-instance"
-slug: "c8volt_get_process-instance"
-description: "CLI reference for c8volt get process-instance"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt get process-instance
 
 Get process instances

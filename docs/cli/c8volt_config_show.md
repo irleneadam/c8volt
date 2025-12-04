@@ -1,9 +1,8 @@
 ---
 title: "c8volt config show"
-slug: "c8volt_config_show"
-description: "CLI reference for c8volt config show"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt config show
 
 Show effective configuration

@@ -1,9 +1,8 @@
 ---
 title: "c8volt deploy"
-slug: "c8volt_deploy"
-description: "CLI reference for c8volt deploy"
 ---
 
+[CLI Reference]({{ "/cli/" | relative_url }})
 ## c8volt deploy
 
 Deploy resources
