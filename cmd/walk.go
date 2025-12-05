@@ -5,8 +5,10 @@ import (
 )
 
 var walkCmd = &cobra.Command{
-	Use:     "walk",
-	Short:   "Traverse (walk) the parent/child graph of resource type",
+	Use:   "walk",
+	Short: "Traverse (walk) the parent/child graph of resource type",
+	Long: "Traverse (walk) the parent/child graph of resource types such as process instances.\n" +
+		"It is a root command and requires a subcommand to specify the resource type to walk.",
 	Aliases: []string{"w", "traverse"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return cmd.Help()

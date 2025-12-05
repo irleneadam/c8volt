@@ -14,8 +14,10 @@ import (
 )
 
 var deployCmd = &cobra.Command{
-	Use:     "deploy",
-	Short:   "Deploy resources",
+	Use:   "deploy",
+	Short: "Deploy resources",
+	Long: "Deploy resources such as BPMN process definitions.\n" +
+		"It is a root command and requires a subcommand to specify the resource type to deploy.",
 	Aliases: []string{"dep"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return cmd.Help()

@@ -10,8 +10,10 @@ var (
 )
 
 var runCmd = &cobra.Command{
-	Use:     "run",
-	Short:   "Run resources",
+	Use:   "run",
+	Short: "Run resources",
+	Long: "Run resources such as process definitions.\n" +
+		"It is a root command and requires a subcommand to specify the resource type to run.",
 	Aliases: []string{"r"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return cmd.Help()

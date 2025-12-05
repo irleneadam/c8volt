@@ -11,8 +11,10 @@ var (
 )
 
 var cancelCmd = &cobra.Command{
-	Use:     "cancel",
-	Short:   "Cancel resources",
+	Use:   "cancel",
+	Short: "Cancel resources",
+	Long: "Cancel resources such as process instances.\n" +
+		"It is a root command and requires a subcommand to specify the resource type to cancel.",
 	Aliases: []string{"c", "cn", "stop", "abort"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return cmd.Help()

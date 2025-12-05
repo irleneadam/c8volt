@@ -33,7 +33,8 @@ func Root() *cobra.Command { return rootCmd }
 var rootCmd = &cobra.Command{
 	Use:   "c8volt",
 	Short: "c8volt: Camunda 8 Operations CLI",
-	Long:  `c8volt: Camunda 8 Operations CLI. The tool for Camunda 8 admins and developers to verify outcomes.`,
+	Long: `c8volt: Camunda 8 Operations CLI. The tool for Camunda 8 admins and developers to verify outcomes.
+Refer to the documentation at https://c8volt.boczek.info for more information.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		v := viper.New()
 		if err := initViper(v, cmd); err != nil {
@@ -133,7 +134,7 @@ func init() {
 	_ = rootCmd.PersistentFlags().MarkHidden("verbose") // not used currently
 	pf.BoolVar(&flagDebug, "debug", false, "enable debug logging, overwrites and is shorthand for --log-level=debug")
 	pf.BoolVarP(&flagViewAsJson, "json", "j", false, "output as JSON (where applicable)")
-	pf.BoolVar(&flagViewKeysOnly, "keys-only", false, "output as keys only (where applicable), can be used for piping to other commands, like cancel or delete")
+	pf.BoolVar(&flagViewKeysOnly, "keys-only", false, "output as keys only (where applicable), can be used for piping to other commands")
 
 	pf.String("config", "", "path to config file")
 	pf.String("profile", "", "config active profile name to use (e.g. dev, prod)")

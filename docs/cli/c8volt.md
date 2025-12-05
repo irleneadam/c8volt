@@ -10,6 +10,7 @@ c8volt: Camunda 8 Operations CLI
 ### Synopsis
 
 c8volt: Camunda 8 Operations CLI. The tool for Camunda 8 admins and developers to verify outcomes.
+Refer to the documentation at https://c8volt.boczek.info for more information.
 
 ```
 c8volt [flags]
@@ -23,7 +24,7 @@ c8volt [flags]
       --debug               enable debug logging, overwrites and is shorthand for --log-level=debug
   -h, --help                help for c8volt
   -j, --json                output as JSON (where applicable)
-      --keys-only           output as keys only (where applicable), can be used for piping to other commands, like cancel or delete
+      --keys-only           output as keys only (where applicable), can be used for piping to other commands
       --log-format string   log format (json, plain, text) (default "plain")
       --log-level string    log level (debug, info, warn, error) (default "info")
       --log-with-source     include source file and line number in logs

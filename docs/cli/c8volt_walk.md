@@ -7,6 +7,11 @@ title: "c8volt walk"
 
 Traverse (walk) the parent/child graph of resource type
 
+### Synopsis
+
+Traverse (walk) the parent/child graph of resource types such as process instances.
+It is a root command and requires a subcommand to specify the resource type to walk.
+
 ```
 c8volt walk [flags]
 ```
@@ -24,7 +29,7 @@ c8volt walk [flags]
       --config string       path to config file
       --debug               enable debug logging, overwrites and is shorthand for --log-level=debug
   -j, --json                output as JSON (where applicable)
-      --keys-only           output as keys only (where applicable), can be used for piping to other commands, like cancel or delete
+      --keys-only           output as keys only (where applicable), can be used for piping to other commands
       --log-format string   log format (json, plain, text) (default "plain")
       --log-level string    log level (debug, info, warn, error) (default "info")
       --log-with-source     include source file and line number in logs
